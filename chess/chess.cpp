@@ -1,6 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
+#include <vector>
 using namespace std;
 
 // === structures ===
@@ -116,14 +117,58 @@ string showBoard(boardSquares** chessBoard, string fileNames[]) {
 		stringOfBoard = stringOfBoard + "  --------------------------------------------------------\t";
 	}
 
-
-
 	return stringOfBoard + "\n\t" + borders;
 }
+
+
+bool isMoveSyntaxCorrect(string pieceName, int startFile, int startRank, int targetFile, int targerRank) {
+    vector<string> acceptablePieceStr = { "R", "N", "B", "Q", "K", "P" };
+	bool isOk = true;
+	auto findPieceName = find(acceptablePieceStr.begin(), acceptablePieceStr.end(), pieceName);
+
+	if (distance(acceptablePieceStr.begin(), findPieceName) == 6) {
+		isOk = false;
+	}
+	else if (startFile < 0 || startFile > 7) {
+		isOk = false;
+	}
+	else if (targetFile < 0 || targetFile > 7) {
+		isOk = false;
+	}
+	else if (startRank < 0 || startRank > 7) {
+		isOk = false;
+	}
+	else if (targerRank < 0 || targerRank > 7) {
+		isOk = false;
+	}
+
+	return isOk;
+}
+
+void makeMove(string playerMove, boardSquares** chessBoard) {
+	// movement syntax (K, k) e1 ==> h4
+	string pieceName(1, toupper(playerMove.at(0)));
+	int startFile = tolower(playerMove.at(2)) - 97;
+	int startRank = playerMove.at(3) - 49;
+	int targetFile = tolower(playerMove.at(9)) - 97;
+	int targerRank = playerMove.at(10) - 49;
+
+	if (isMoveSyntaxCorrect(pieceName, startFile, startRank, targetFile, targerRank)) {
+		cout << "correct syntax";
+	}
+	else {
+		cout << "\tPlease use syntax structure correctly." << endl;
+		cout << "\tExample : K a3 ==> f6" << endl;
+		cout << "\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
+	}
+}
+
 
 int main() {
 	string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 	boardSquares** chessBoard = makeChessBoard(fileNames);
+	//string playerMove;
+	string playerMove = "p f2 ==> d8";
 	
 	//vector<string> names = givePlayerNames();
 	vector<string> names = { "playerOne", "playerTwo" };
@@ -133,15 +178,14 @@ int main() {
 	string currentPlayerName = isWhiteToMove ? names.at(0) : names.at(1);
 	cout << "\n";
 	cout << "\t" << currentPlayerName << " is your turn " << endl << endl;
-	boardSquares member = chessBoard[4][5];
-	cout << "\t" << (member.isWhite ? "white" : "black") << "\t" << member.fileName << "\t" << member.rankNum;
 	cout << "\n";
 	cout << "\n";
 	cout << "\n";
 	cout << "\t" << showBoard(chessBoard, fileNames);
 	cout << "\n";
 	cout << "\n";
-	cout << "\n";
+	//cin >> playerMove;
+	makeMove(playerMove, chessBoard);
 	cout << "\n";
 	cout << "\n";
 
