@@ -1,5 +1,6 @@
 #include <iostream>
 #include <vector>
+#include <string>
 using namespace std;
 
 // === structures ===
@@ -82,20 +83,42 @@ boardSquares** makeChessBoard(string fileNames[]) {
 	return chessBoard;
 }
 
-string showBoard(boardSquares** chessBoard) {
-	string stringOfBoard = "\n \t----------------------------------------\n \t";
+string showBoard(boardSquares** chessBoard, string fileNames[]) {
+	string borders = "     ";
+	for(int i = 0; i < 8; i++) {
+		borders = borders + fileNames[i] + "      ";
+	}
+	string stringOfBoard = borders + "\n \t  --------------------------------------------------------";
 
 	// i had to use this shape of loop for different between the start point in matrix and chess board
 	for (int i = 7; i >= 0; i--) {
+		// colorLine is a string containing a basic style for showing black and white squares
+		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
-			string square = " s ";
-			//stringOfBoard = stringOfBoard + "| " + chessBoard[i][j].fileName + "" + to_string(chessBoard[i][j].rankNum) + " |";
-			stringOfBoard = stringOfBoard + "| " + chessBoard[i][j].currentPiece + " |";
+			if (chessBoard[i][j].isWhite) {
+				colorLine = colorLine + "|+++++|";
+			}
+			else {
+				colorLine = colorLine + "|     |";
+			}
 		}
-		stringOfBoard = stringOfBoard + "\n \t----------------------------------------\n \t";
+		colorLine = colorLine + "\n\t";
+
+		stringOfBoard = stringOfBoard + colorLine + to_string(i + 1) + " ";
+		for (int j = 0; j < 8; j++) {
+			// + is the white sqaure sign and i want to show + in only white
+			string gapLeft = (chessBoard[i][j].isWhite ? "+ " : "  ");
+			string gapRight = (chessBoard[i][j].isWhite ? " +" : "  ");
+			//stringOfBoard = stringOfBoard + "| " + chessBoard[i][j].fileName + "" + to_string(chessBoard[i][j].rankNum) + " |";
+			stringOfBoard = stringOfBoard + "|" + gapLeft + chessBoard[i][j].currentPiece + gapRight + "|";
+		}
+		stringOfBoard = stringOfBoard + " " + to_string(i + 1) + colorLine;
+		stringOfBoard = stringOfBoard + "  --------------------------------------------------------\t";
 	}
 
-	return stringOfBoard;
+
+
+	return stringOfBoard + "\n\t" + borders;
 }
 
 int main() {
@@ -115,10 +138,7 @@ int main() {
 	cout << "\n";
 	cout << "\n";
 	cout << "\n";
-	cout << "\n";
-	cout << "\n";
-	cout << "\n";
-	cout << "\t" << showBoard(chessBoard);
+	cout << "\t" << showBoard(chessBoard, fileNames);
 	cout << "\n";
 	cout << "\n";
 	cout << "\n";
