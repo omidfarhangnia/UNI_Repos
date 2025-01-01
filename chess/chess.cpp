@@ -6,34 +6,6 @@ using namespace std;
 
 // === structures ===
 
-//struct pieceData {
-//	// all pieces are white or black
-//	bool isWhite;
-//
-//};
-//
-//struct boardSquares
-//{
-//	// each square has own color (black or white)
-//	bool isWhite;
-//	// a number between (1 to 8)
-//	int rankNum;
-//	// one of these letters (a, b, c, d, e, f, g, h)
-//	string fileName;
-//	// it is the name of piece that is located in that square
-//	// it could be one of theses status 
-//	// (
-//	// "" : it means there is no pieces in this sqaure, 
-//	// R : rock,
-//	// N : knight,
-//	// B : bishop,
-//	// Q : queen,
-//	// K : king,
-//	// P : pawn
-//	// )
-//	string currentPiece;
-//};
-
 struct boardSquares
 {
 	// each square has own color (black or white)
@@ -184,7 +156,6 @@ string showBoard(boardSquares** chessBoard, string fileNames[]) {
 	return stringOfBoard + "\n\t" + borders;
 }
 
-
 bool isMoveSyntaxCorrect(string pieceName, int startFile, int startRank, int targetFile, int targerRank) {
     vector<string> acceptablePieceStr = { "R", "N", "B", "Q", "K", "P" };
 	bool isOk = true;
@@ -209,7 +180,22 @@ bool isMoveSyntaxCorrect(string pieceName, int startFile, int startRank, int tar
 	return isOk;
 }
 
-void makeMove(string playerMove, boardSquares** chessBoard) {
+bool isPlayerPiece(bool isWhiteToMove, boardSquares** chessBoard , int startFile, int startRank) {
+	string legalColor = (isWhiteToMove ? "white" : "black");
+	if (chessBoard[startRank][startFile].pieceData.color == legalColor) {
+		return true;
+	}
+	else { return false; }
+}
+
+bool isPieceInLocation(string pieceName, boardSquares** chessBoard, int startFile, int startRank) {
+	if (chessBoard[startRank][startFile].pieceData.currentPiece == pieceName) {
+		return true;
+	}
+	else { return false; }
+}
+
+void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) {
 	// movement syntax (K, k) e1 ==> h4
 	string pieceName(1, toupper(playerMove.at(0)));
 	int startFile = tolower(playerMove.at(2)) - 97;
@@ -218,7 +204,18 @@ void makeMove(string playerMove, boardSquares** chessBoard) {
 	int targerRank = playerMove.at(10) - 49;
 
 	if (isMoveSyntaxCorrect(pieceName, startFile, startRank, targetFile, targerRank)) {
-		cout << "correct syntax";
+		if (isPlayerPiece(isWhiteToMove, chessBoard, startFile, startRank)) {
+			if (isPieceInLocation(pieceName, chessBoard, startFile, startRank)) {
+				cout << "good choice";
+			}
+			else {
+				cout << "\t there is no " << pieceName << " in " << playerMove.at(2) << playerMove.at(3) << " choose again.";
+			}
+		}
+		else {
+			cout << "\t  Please select one of your pieces.";
+		}
+		//isMoveLegal(chessBoard, pieceName, startFile, startRank, targetFile, targerRank);
 	}
 	else {
 		cout << "\tPlease use syntax structure correctly." << endl;
@@ -227,16 +224,15 @@ void makeMove(string playerMove, boardSquares** chessBoard) {
 	}
 }
 
-
 int main() {
 	string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 	boardSquares** chessBoard = makeChessBoard(fileNames);
 	//string playerMove;
-	string playerMove = "p f2 ==> d8";
+	string playerMove = "p a1 ==> d8";
 	
 	//vector<string> names = givePlayerNames();
 	vector<string> names = { "playerOne", "playerTwo" };
-	bool isWhiteToMove = false;
+	bool isWhiteToMove = true;
 
 
 	string currentPlayerName = isWhiteToMove ? names.at(0) : names.at(1);
@@ -248,8 +244,9 @@ int main() {
 	cout << "\t" << showBoard(chessBoard, fileNames);
 	cout << "\n";
 	cout << "\n";
+	cout << "\n";
 	//cin >> playerMove;
-	makeMove(playerMove, chessBoard);
+	makeMove(playerMove, chessBoard, isWhiteToMove);
 	cout << "\n";
 	cout << "\n";
 
