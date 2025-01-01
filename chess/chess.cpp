@@ -6,6 +6,34 @@ using namespace std;
 
 // === structures ===
 
+//struct pieceData {
+//	// all pieces are white or black
+//	bool isWhite;
+//
+//};
+//
+//struct boardSquares
+//{
+//	// each square has own color (black or white)
+//	bool isWhite;
+//	// a number between (1 to 8)
+//	int rankNum;
+//	// one of these letters (a, b, c, d, e, f, g, h)
+//	string fileName;
+//	// it is the name of piece that is located in that square
+//	// it could be one of theses status 
+//	// (
+//	// "" : it means there is no pieces in this sqaure, 
+//	// R : rock,
+//	// N : knight,
+//	// B : bishop,
+//	// Q : queen,
+//	// K : king,
+//	// P : pawn
+//	// )
+//	string currentPiece;
+//};
+
 struct boardSquares
 {
 	// each square has own color (black or white)
@@ -14,18 +42,29 @@ struct boardSquares
 	int rankNum;
 	// one of these letters (a, b, c, d, e, f, g, h)
 	string fileName;
-	// it is the name of piece that is located in that square
-	// it could be one of theses status 
-	// (
-	// "" : it means there is no pieces in this sqaure, 
-	// R : rock,
-	// N : knight,
-	// B : bishop,
-	// Q : queen,
-	// K : king,
-	// P : pawn
-	// )
-	string currentPiece;
+	struct pieceData {
+		// we have white and black color for squares which have piece and we have null for others
+		string color;
+		// it is the name of piece that is located in that square
+		// it could be one of theses status 
+		// (
+		// "" : it means there is no pieces in this sqaure,		
+		// R : rock,
+		// N : knight,
+		// B : bishop,
+		// Q : queen,
+		// K : king,
+		// P : pawn
+		// )
+		string currentPiece;
+	};
+	pieceData pieceData;
+
+};
+
+struct piecesColor {
+	string right;
+	string left;
 };
 
 // === functions ===
@@ -42,7 +81,7 @@ struct boardSquares
 //    return names;
 //}
 
-string makeFirstPieceArrangment(int i, int j) {
+string giveFirstPieceArrangment(int i, int j) {
 	string piece = " ";
 	if (i == 1 || i == 6) {
 		piece = "P";
@@ -65,6 +104,16 @@ string makeFirstPieceArrangment(int i, int j) {
 	return piece;
 }
 
+string givePiecesColor(int i) {
+	string color = " ";
+	if (i < 2) {
+		color = "white";
+	}else if (i > 5) {
+		color = "black";
+	}
+	return color;
+}
+
 boardSquares** makeChessBoard(string fileNames[]) {
 	boardSquares** chessBoard = new boardSquares*[8];
 	
@@ -77,11 +126,24 @@ boardSquares** makeChessBoard(string fileNames[]) {
 			chessBoard[i][j].isWhite = (i + j) % 2 == 0 ? false : true;
 			chessBoard[i][j].rankNum = i + 1;
 			chessBoard[i][j].fileName = fileNames[j];
-			chessBoard[i][j].currentPiece = makeFirstPieceArrangment(i, j);
+			chessBoard[i][j].pieceData.currentPiece = giveFirstPieceArrangment(i, j);
+			chessBoard[i][j].pieceData.color = givePiecesColor(i);
 		}
 	}
 
 	return chessBoard;
+}
+
+piecesColor givePieceColorSymbol(string color) {
+	piecesColor symbol;
+	if (color == "white") {
+		symbol.left = " +";
+		symbol.right = "+ ";
+	}else {
+		symbol.left = "  ";
+		symbol.right = "  ";
+	}
+	return symbol;
 }
 
 string showBoard(boardSquares** chessBoard, string fileNames[]) {
@@ -97,7 +159,7 @@ string showBoard(boardSquares** chessBoard, string fileNames[]) {
 		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
-				colorLine = colorLine + "|+++++|";
+				colorLine = colorLine + "|#   #|";
 			}
 			else {
 				colorLine = colorLine + "|     |";
@@ -107,11 +169,13 @@ string showBoard(boardSquares** chessBoard, string fileNames[]) {
 
 		stringOfBoard = stringOfBoard + colorLine + to_string(i + 1) + " ";
 		for (int j = 0; j < 8; j++) {
-			// + is the white sqaure sign and i want to show + in only white
-			string gapLeft = (chessBoard[i][j].isWhite ? "+ " : "  ");
-			string gapRight = (chessBoard[i][j].isWhite ? " +" : "  ");
+			//// + is the white sqaure sign and i want to show + in only white
+			//string gapLeft = (chessBoard[i][j].pieceData.color ? "+ " : "- ");
+			//string gapRight = (chessBoard[i][j].pieceData.color ? " +" : " -");
+			piecesColor symbol = givePieceColorSymbol(chessBoard[i][j].pieceData.color);
+			 
 			//stringOfBoard = stringOfBoard + "| " + chessBoard[i][j].fileName + "" + to_string(chessBoard[i][j].rankNum) + " |";
-			stringOfBoard = stringOfBoard + "|" + gapLeft + chessBoard[i][j].currentPiece + gapRight + "|";
+			stringOfBoard = stringOfBoard + "|" + symbol.left + chessBoard[i][j].pieceData.currentPiece + symbol.right + "|";
 		}
 		stringOfBoard = stringOfBoard + " " + to_string(i + 1) + colorLine;
 		stringOfBoard = stringOfBoard + "  --------------------------------------------------------\t";
