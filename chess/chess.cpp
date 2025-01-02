@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <vector>
+#include <cmath>
 #include <stdlib.h>
 using namespace std;
 
@@ -26,7 +27,7 @@ struct boardSquares
 		// it is the name of piece that is located in that square
 		// it could be one of theses status 
 		// (
-		// "" : it means there is no pieces in this sqaure,		
+		// " " : it means there is no pieces in this sqaure,		
 		// R : rock,
 		// N : knight,
 		// B : bishop,
@@ -226,6 +227,87 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 
 }
 
+bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+	// when pawn is going straight
+	string pieceColor = chessBoard[startRank][startFile].pieceData.color;
+
+	if (startFile == targetFile) {
+		if (chessBoard[targetRank][targetFile].pieceData.currentPiece == " ") {
+			// white pawn
+			if (pieceColor == "white") {
+				// white pawns always move to the top of the board
+				if (targetRank > startRank) {
+					// in the first move each pawn have to choice moving one square or two square
+					if (startRank == 1 && ((targetRank - startRank) <= 2)) {
+						return true;
+
+					}
+					// but after moving from first location pawns can only move on sqaure
+					else if (startRank != 1 && ((targetRank - startRank) == 1)) {
+						return true;
+					}
+				}
+			}
+			// black pawn
+			else {
+				// black pawns always move to the bottom of the board
+				if (targetRank < startRank) {
+					if (startRank == 6 && (startRank - targetRank) <= 2) {
+						return true;
+					}
+					// but after moving from first location pawns can only move on sqaure
+					else if (startRank != 6 && (startRank - targetRank) == 1) {
+						return true;
+					}
+				}
+			}
+		}
+	}
+	// when pawn is attacking to other pieces
+	else if(abs(targetFile - startFile) == 1 && abs(targetRank - startRank) == 1) {
+		if (chessBoard[targetRank][targetFile].pieceData.currentPiece != " ") {
+			// white pawn
+			if (pieceColor == "white") {
+				if (targetRank > startRank) {
+					if ((targetRank - startRank) == 1) {
+						return true;
+					}
+				}
+			}
+			// black pawn
+			else {
+				if (targetRank < startRank) {
+					if ((startRank - targetRank) == 1) {
+						return true;
+					}
+				}
+
+			}
+		}
+	}
+
+	return false;
+}
+
+bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+	bool isLegal;
+	if (pieceName == "K") {
+
+	}else if (pieceName == "Q") {
+
+	}else if (pieceName == "P") {
+		isLegal = isLegalMoveForP(chessBoard, startFile, startRank, targetFile, targetRank);
+
+	}else if (pieceName == "R") {
+
+	}else if (pieceName == "B") {
+
+	}else if (pieceName == "N") {
+
+	}
+	return isLegal;
+}
+
 void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) {
 	// movement syntax (K, k) e1 ==> h4
 	string pieceName(1, toupper(playerMove.at(0)));
@@ -237,8 +319,9 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 	if (isMoveSyntaxCorrect(pieceName, startFile, startRank, targetFile, targetRank)) {
 		if (isPlayerPiece(isWhiteToMove, chessBoard, startFile, startRank)) {
 			if (isPieceInLocation(pieceName, chessBoard, startFile, startRank)) {
-				cout << "good choice";
+				if (isMoveLegal(pieceName, chessBoard, startFile, startRank, targetFile, targetRank)) {
 				showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
+				}
 			}
 			else {
 				string errorMessage = "\t there is no " + pieceName + " in " + playerMove.at(2) + playerMove.at(3) + " choose again.";
