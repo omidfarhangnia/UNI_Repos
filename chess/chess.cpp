@@ -113,19 +113,15 @@ boardSquares** makeChessBoard() {
 			// test code
 			chessBoard[i][j].pieceData.currentPiece = " ";
 			chessBoard[i][j].pieceData.color = "";
-			if (i == 6 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 3 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 1 && j == 4) {
+			if (i == 6 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "P";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 0 && j == 5) {
+			if (i == 4 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 6 && j == 6) {
 				chessBoard[i][j].pieceData.currentPiece = "P";
 				chessBoard[i][j].pieceData.color = "black";
 			}
@@ -256,9 +252,13 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 	newChessBoard[targetRank][targetFile].pieceData = chessBoard[startRank][startFile].pieceData;
 	newChessBoard[startRank][startFile].pieceData.color = "";
 	newChessBoard[startRank][startFile].pieceData.currentPiece = " ";
-	if (specialMove == "PawnPromotion") {
+	if (specialMove == "pawnPromotion") {
 		newChessBoard[targetRank][targetFile].pieceData.currentPiece = "Q";
-		specialMove = "None";
+		specialMove = "none";
+	}
+	else if (specialMove == "enPassant") {
+		newChessBoard[startRank][targetFile].pieceData.currentPiece = " ";
+		specialMove = "none";
 	}
 	system("CLS");
 	cout << "\t" << showBoard(newChessBoard, !isWhiteToMove);
@@ -268,9 +268,9 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 }
 
 bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
-	// when pawn is going straight
 	string pieceColor = chessBoard[startRank][startFile].pieceData.color;
 
+	// when pawn is going straight
 	if (startFile == targetFile) {
 		if (chessBoard[targetRank][targetFile].pieceData.currentPiece == " ") {
 			// white pawn
@@ -286,7 +286,7 @@ bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, in
 					else if (startRank != 1 && ((targetRank - startRank) == 1)) {
 						// this condition check is pawn going to be qween?
 						if (startRank == 6) {
-							specialMove = "PawnPromotion";
+							specialMove = "pawnPromotion";
 						}
 						return true;
 					}
@@ -303,7 +303,7 @@ bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, in
 					else if (startRank != 6 && (startRank - targetRank) == 1) {
 						// this condition check is pawn going to be qween?
 						if (startRank == 1) {
-							specialMove = "PawnPromotion";
+							specialMove = "pawnPromotion";
 						}
 						return true;
 					}
@@ -317,25 +317,44 @@ bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, in
 			// white pawn
 			if (pieceColor == "white") {
 				if (targetRank > startRank) {
-					if ((targetRank - startRank) == 1) {
-						if (targetRank == 7) {
-							specialMove = "PawnPromotion";
-						}
-						return true;
+					if (targetRank == 7) {
+						specialMove = "pawnPromotion";
 					}
+					return true;
 				}
 			}
 			// black pawn
 			else {
 				if (targetRank < startRank) {
-					if ((startRank - targetRank) == 1) {
-						if (targetRank == 0) {
-							specialMove = "PawnPromotion";
+					if (targetRank == 0) {
+						specialMove = "pawnPromotion";
+					}
+					return true;
+				}
+			}
+		}
+		// the target square is empty (just checking for en passant)
+		else {
+			 //is there any piece in right or left side of selected piece
+			if (chessBoard[startRank][targetFile].pieceData.currentPiece == "P") {
+				// white pawn
+				if (pieceColor == "white") {
+					if (targetRank > startRank) {
+						if (targetRank == 5) {
+							specialMove = "enPassant";
+							return true;
 						}
-						return true;
 					}
 				}
-
+				// black pawn
+				else {
+					if (targetRank < startRank) {
+						if (targetRank == 2) {
+							specialMove = "enPassant";
+							return true;
+						}
+					}
+				}
 			}
 		}
 	}
@@ -378,17 +397,17 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 						showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
 					}
 					else {
-						string errorMessage = "\tthis move is not legal try again";
+						string errorMessage = "\t This move is not legal try again";
 						tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 					}
 				}
 				else {
-					string errorMessage = "\t you can not attack to your own pieces";
+					string errorMessage = "\t You can not attack to your own pieces";
 					tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 				}
 			}
 			else {
-				string errorMessage = "\t there is no " + pieceName + " in " + playerMove.at(2) + playerMove.at(3) + " choose again.";
+				string errorMessage = "\t There is no " + pieceName + " in " + playerMove.at(2) + playerMove.at(3) + " choose again.";
 				tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 			}
 		}
@@ -396,10 +415,9 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 			string errorMessage = "\t  Please select one of your pieces.";
 			tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 		}
-		//isMoveLegal(chessBoard, pieceName, startFile, startRank, targetFile, targetRank);
 	}
 	else {
-		string errorMessage = "\tPlease use syntax structure correctly.\n\tExample : K a3 ==> f6\n\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
+		string errorMessage = "\t Please use syntax structure correctly.\n\tExample : K a3 ==> f6\n\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
 		tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 	}
 }
@@ -409,7 +427,7 @@ int main() {
 	string playerMove;
 	//string playerMove = "p e2 ==> e4";
 
-	bool isWhiteToMove = true;
+	bool isWhiteToMove = false;
 
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
 	getline(cin, playerMove);
