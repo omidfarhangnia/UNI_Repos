@@ -45,6 +45,7 @@ struct piecesColor {
 string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 //vector<string> names = givePlayerNames();
 vector<string> names = { "playerOne", "playerTwo" };
+// we have these specialMoves (pawnPromotion, enPassant)
 string specialMove = "none";
 
 // === functions ===
@@ -121,8 +122,20 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "P";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 6 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
+			if (i == 3 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 3 && j == 0) {
+				chessBoard[i][j].pieceData.currentPiece = "Q";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 0 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "Q";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 7 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "Q";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -362,16 +375,76 @@ bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, in
 	return false;
 }
 
+bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+
+	// we can only move in a rank or in file in each movement
+	if (startRank == targetRank) {
+		if (startFile > targetFile) {
+			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			int distance = startFile - targetFile;
+
+			for (int i = 1; i < distance; i++) {
+				if (chessBoard[targetRank][i + targetFile].pieceData.currentPiece != " ") {
+					return false;
+				}
+			}
+
+			return true;
+		}
+		else {
+			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			int distance = targetFile - startFile;
+
+			for (int i = 1; i < distance; i++) {
+				if (chessBoard[targetRank][i + startFile].pieceData.currentPiece != " ") {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+	else if (startFile == targetFile) {
+		if (startRank > targetRank) {
+			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			int distance = startRank - targetRank;
+
+			for (int i = 1; i < distance; i++) {
+				if (chessBoard[i + targetRank][targetFile].pieceData.currentPiece != " ") {
+					return false;
+				}
+			}
+
+			return true;
+		}
+		else {
+			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			int distance = targetRank - startRank;
+
+			for (int i = 1; i < distance; i++) {
+				if (chessBoard[i + startRank][targetFile].pieceData.currentPiece != " ") {
+					return false;
+				}
+			}
+
+			return true;
+		}
+	}
+
+	return false;
+}
+
 bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
 	bool isLegal;
 	if (pieceName == "K") {
 
 	}else if (pieceName == "Q") {
-		isLegal = true;
+
 	}else if (pieceName == "P") {
 		isLegal = isLegalMoveForP(chessBoard, startFile, startRank, targetFile, targetRank);
 
 	}else if (pieceName == "R") {
+		isLegal = isLegalMoveForR(chessBoard, startFile, startRank, targetFile, targetRank);
 
 	}else if (pieceName == "B") {
 
@@ -402,7 +475,7 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 					}
 				}
 				else {
-					string errorMessage = "\t You can not attack to your own pieces";
+					string errorMessage = "\t You can not attack on your own pieces";
 					tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 				}
 			}
@@ -427,7 +500,7 @@ int main() {
 	string playerMove;
 	//string playerMove = "p e2 ==> e4";
 
-	bool isWhiteToMove = false;
+	bool isWhiteToMove = true;
 
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
 	getline(cin, playerMove);
