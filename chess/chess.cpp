@@ -114,28 +114,25 @@ boardSquares** makeChessBoard() {
 			// test code
 			chessBoard[i][j].pieceData.currentPiece = " ";
 			chessBoard[i][j].pieceData.color = "";
-			if (i == 6 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "black";
+		
+			if (i == 3 && j == 4) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.color = "white";
 			}
 			if (i == 4 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 3 && j == 5) {
+			if (i == 3 && j == 3) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 3 && j == 0) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "black";
+			if (i == 6 && j == 3) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 0 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 7 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
+			if (i == 2 && j == 2) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -434,20 +431,74 @@ bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, in
 	return false;
 }
 
+bool isLegalMoveForB(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+	// we can only move in one color (black or white) for all of bishop life time this color would'nt change
+	if (chessBoard[startRank][startFile].isWhite == chessBoard[targetRank][targetFile].isWhite) {
+		if (abs(targetFile - startFile) == abs(targetRank - startRank)) {
+			if (targetRank > startRank) {
+				int distance = targetRank - startRank;
+				// moving bishop right top
+				if (targetFile > startFile) {
+					for (int i = 1; i < distance; i++) {
+						if (chessBoard[startRank + i][startFile + i].pieceData.currentPiece != " ") {
+							return false;
+						}
+					}
+
+					return true;
+				}
+				// moving bishop left top
+				else {
+					for (int i = 1; i < distance; i++) {
+						if (chessBoard[startRank + i][startFile - i].pieceData.currentPiece != " ") {
+							return false;
+						}
+					}
+
+					return true;
+				}
+			}
+			else {
+				int distance = startRank - targetRank;
+				// moving bishop right bottom
+				if (targetFile > startFile) {
+					for (int i = 1; i < distance; i++) {
+						if (chessBoard[startRank - i][startFile + i].pieceData.currentPiece != " ") {
+							return false;
+						}
+					}
+
+					return true;
+				}
+				// moving bishop left bottom
+				else {
+					for (int i = 1; i < distance; i++) {
+						if (chessBoard[startRank - i][startFile - i].pieceData.currentPiece != " ") {
+							return false;
+						}
+					}
+
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
 	bool isLegal;
 	if (pieceName == "K") {
 
 	}else if (pieceName == "Q") {
-
+		
 	}else if (pieceName == "P") {
 		isLegal = isLegalMoveForP(chessBoard, startFile, startRank, targetFile, targetRank);
-
 	}else if (pieceName == "R") {
 		isLegal = isLegalMoveForR(chessBoard, startFile, startRank, targetFile, targetRank);
-
 	}else if (pieceName == "B") {
-
+		isLegal = isLegalMoveForB(chessBoard, startFile, startRank, targetFile, targetRank);
 	}else if (pieceName == "N") {
 
 	}
