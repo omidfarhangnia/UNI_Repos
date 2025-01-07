@@ -8,6 +8,23 @@ using namespace std;
 
 // === structures ===
 
+struct pieceData {
+	// we have white and black color for squares which have piece and we have "" for others
+	string color;
+	// it is the name of piece that is located in that square
+	// it could be one of theses status 
+	// (
+	// " " : it means there is no pieces in this sqaure,		
+	// R : rook,
+	// N : knight,
+	// B : bishop,
+	// Q : queen,
+	// K : king,
+	// P : pawn
+	// )
+	string currentPiece;
+};
+
 struct boardSquares
 {
 	// each square has own color (black or white)
@@ -16,24 +33,7 @@ struct boardSquares
 	int rankNum;
 	// one of these letters (a, b, c, d, e, f, g, h)
 	string fileName;
-	struct pieceData {
-		// we have white and black color for squares which have piece and we have "" for others
-		string color;
-		// it is the name of piece that is located in that square
-		// it could be one of theses status 
-		// (
-		// " " : it means there is no pieces in this sqaure,		
-		// R : rock,
-		// N : knight,
-		// B : bishop,
-		// Q : queen,
-		// K : king,
-		// P : pawn
-		// )
-		string currentPiece;
-	};
 	pieceData pieceData;
-
 };
 
 struct piecesColor {
@@ -45,7 +45,7 @@ struct piecesColor {
 string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 //vector<string> names = givePlayerNames();
 vector<string> names = { "playerOne", "playerTwo" };
-// we have these specialMoves (pawnPromotion, enPassant)
+// we have these specialMoves (pawnPromotion, enPassant, kingSideCastle, qweenSideCastle)
 string specialMove = "none";
 
 // === functions ===
@@ -114,13 +114,28 @@ boardSquares** makeChessBoard() {
 			// test code
 			chessBoard[i][j].pieceData.currentPiece = " ";
 			chessBoard[i][j].pieceData.color = "";
-		
-			if (i == 3 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "N";
+			if (i == 0 && j == 4) {
+				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 5 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "N";
+			if (i == 7 && j == 4) {
+				chessBoard[i][j].pieceData.currentPiece = "K";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 0 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 7 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 0 && j == 0) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 7 && j == 0) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -258,6 +273,18 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 		newChessBoard[startRank][targetFile].pieceData.currentPiece = " ";
 		specialMove = "none";
 	}
+	else if (specialMove == "kingSideCastle") {
+		newChessBoard[startRank][5].pieceData = chessBoard[startRank][7].pieceData;
+		newChessBoard[startRank][7].pieceData.currentPiece = " ";
+		newChessBoard[startRank][7].pieceData.color = "";
+		specialMove = "none";
+	}
+	else if (specialMove == "qweenSideCastle") {
+		newChessBoard[startRank][3].pieceData = chessBoard[startRank][0].pieceData;
+		newChessBoard[startRank][0].pieceData.currentPiece = " ";
+		newChessBoard[startRank][0].pieceData.color = "";
+		specialMove = "none";
+	}
 	system("CLS");
 	cout << "\t" << showBoard(newChessBoard, !isWhiteToMove);
 	getline(cin, playerMove);
@@ -365,7 +392,7 @@ bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, in
 	// we can only move in a rank or in file in each movement
 	if (startRank == targetRank) {
 		if (startFile > targetFile) {
-			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			// Rook can not jump and if there is any pieces in the middle of way this move is not legal
 			int distance = startFile - targetFile;
 
 			for (int i = 1; i < distance; i++) {
@@ -377,7 +404,7 @@ bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, in
 			return true;
 		}
 		else {
-			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			// Rook can not jump and if there is any pieces in the middle of way this move is not legal
 			int distance = targetFile - startFile;
 
 			for (int i = 1; i < distance; i++) {
@@ -391,7 +418,7 @@ bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, in
 	}
 	else if (startFile == targetFile) {
 		if (startRank > targetRank) {
-			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			// Rook can not jump and if there is any pieces in the middle of way this move is not legal
 			int distance = startRank - targetRank;
 
 			for (int i = 1; i < distance; i++) {
@@ -403,7 +430,7 @@ bool isLegalMoveForR(boardSquares** chessBoard, int startFile, int startRank, in
 			return true;
 		}
 		else {
-			// Rock can not jump and if there is any pieces in the middle of way this move is not legal
+			// Rook can not jump and if there is any pieces in the middle of way this move is not legal
 			int distance = targetRank - startRank;
 
 			for (int i = 1; i < distance; i++) {
@@ -486,10 +513,112 @@ bool isLegalMoveForN(boardSquares** chessBoard, int startFile, int startRank, in
 	return false;
 }
 
+bool isLegalMoveForK(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+	// each move for king is right, left, top, bottom, right top, right bottom, left top, left bottom
+	const int qweenSideCastleDistance = 3;
+	const int kingSideCastleDistance = 2;
+
+	// checking that movement range is just on block
+	if (abs(targetRank - startRank) == 1) {
+		// it can be just vertical or both (vertical and horizontal)
+		if (abs(targetFile - startFile) == 1 || targetFile == startFile) {
+			return true;
+		}
+	}
+	else if (abs(targetFile - startFile) == 1) {
+		// it can be just horizontal or both (vertical and horizontal)
+		if (abs(targetRank - startRank) == 1 || targetRank == startRank) {
+			return true;
+		}
+	}
+	// checking for casteling
+	else if (abs(targetFile - startFile) == 2) {
+		// in castle we just move horizontally
+		if (startRank == targetRank) {
+			// white king
+			if (chessBoard[startRank][startFile].pieceData.color == "white") {
+				if (startRank == 0) {
+					// king side castling
+					if ((targetFile - startFile) == 2) {
+						// checking rook status
+						pieceData kingSideRook = chessBoard[0][7].pieceData;
+						if (kingSideRook.color == "white" && kingSideRook.currentPiece == "R") {
+							// we can not castle with pieces which are located among king and rook
+							for (int i = 1; i <= kingSideCastleDistance; i++) {
+								if (chessBoard[0][startFile + i].pieceData.currentPiece != " ") {
+									return false;
+								}
+							}
+
+							specialMove = "kingSideCastle";
+							return true;
+						}
+					}
+					// qween side castling
+					else {
+						// checking rook status
+						pieceData kingSideRook = chessBoard[0][7].pieceData;
+						if (kingSideRook.color == "white" && kingSideRook.currentPiece == "R") {
+							// we can not castle with pieces which are located among king and rook
+							for (int i = 1; i <= qweenSideCastleDistance; i++) {
+								if (chessBoard[0][startFile - i].pieceData.currentPiece != " ") {
+									return false;
+								}
+							}
+
+							specialMove = "qweenSideCastle";
+							return true;
+						}
+					}
+				}
+			}
+			// black king
+			else {
+				if (startRank == 7) {
+					// king side castling
+					if ((targetFile - startFile) == 2) {
+						// checking rook status
+						pieceData kingSideRook = chessBoard[7][7].pieceData;
+						if (kingSideRook.color == "black" && kingSideRook.currentPiece == "R") {
+							// we can not castle with pieces which are located among king and rook
+							for (int i = 1; i <= kingSideCastleDistance; i++) {
+								if (chessBoard[7][startFile + i].pieceData.currentPiece != " ") {
+									return false;
+								}
+							}
+
+							specialMove = "kingSideCastle";
+							return true;
+						}
+					}
+					// qween side castling
+					else {
+						// checking rook status
+						pieceData kingSideRook = chessBoard[7][7].pieceData;
+						if (kingSideRook.color == "black" && kingSideRook.currentPiece == "R") {
+							// we can not castle with pieces which are located among king and rook
+							for (int i = 1; i <= qweenSideCastleDistance; i++) {
+								if (chessBoard[7][startFile - i].pieceData.currentPiece != " ") {
+									return false;
+								}
+							}
+
+							specialMove = "qweenSideCastle";
+							return true;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
 	bool isLegal;
 	if (pieceName == "K") {
-
+		isLegal = isLegalMoveForK(chessBoard, startFile, startRank, targetFile, targetRank);
 	}else if (pieceName == "Q") {
 		isLegal = (isLegalMoveForR(chessBoard, startFile, startRank, targetFile, targetRank) || isLegalMoveForB(chessBoard, startFile, startRank, targetFile, targetRank));
 	}else if (pieceName == "P") {
@@ -505,6 +634,7 @@ bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int
 }
 
 void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) {
+	// all string shorter than 11 are not valid for movement syntax
 	if (playerMove.length() == 11) {
 		// movement syntax (K, k) e1 ==> h4
 		string pieceName(1, toupper(playerMove.at(0)));
