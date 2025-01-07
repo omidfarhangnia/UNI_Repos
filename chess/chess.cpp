@@ -116,23 +116,11 @@ boardSquares** makeChessBoard() {
 			chessBoard[i][j].pieceData.color = "";
 		
 			if (i == 3 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.currentPiece = "N";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 4 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 3 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 6 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 2 && j == 2) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
+			if (i == 5 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "N";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -487,12 +475,23 @@ bool isLegalMoveForB(boardSquares** chessBoard, int startFile, int startRank, in
 	return false;
 }
 
+bool isLegalMoveForN(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
+	if (abs(targetFile - startFile) == 2 && abs(targetRank - startRank) == 1) {
+		return true;
+	}
+	else if(abs(targetFile - startFile) == 1 && abs(targetRank - startRank) == 2) {
+		return true;
+	}
+
+	return false;
+}
+
 bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank) {
 	bool isLegal;
 	if (pieceName == "K") {
 
 	}else if (pieceName == "Q") {
-		
+		isLegal = (isLegalMoveForR(chessBoard, startFile, startRank, targetFile, targetRank) || isLegalMoveForB(chessBoard, startFile, startRank, targetFile, targetRank));
 	}else if (pieceName == "P") {
 		isLegal = isLegalMoveForP(chessBoard, startFile, startRank, targetFile, targetRank);
 	}else if (pieceName == "R") {
@@ -500,48 +499,54 @@ bool isMoveLegal(string pieceName, boardSquares** chessBoard, int startFile, int
 	}else if (pieceName == "B") {
 		isLegal = isLegalMoveForB(chessBoard, startFile, startRank, targetFile, targetRank);
 	}else if (pieceName == "N") {
-
+		isLegal = isLegalMoveForN(chessBoard, startFile, startRank, targetFile, targetRank);
 	}
 	return isLegal;
 }
 
 void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) {
-	// movement syntax (K, k) e1 ==> h4
-	string pieceName(1, toupper(playerMove.at(0)));
-	int startFile = tolower(playerMove.at(2)) - 97;
-	int startRank = playerMove.at(3) - 49;
-	int targetFile = tolower(playerMove.at(9)) - 97;
-	int targetRank = playerMove.at(10) - 49;
+	if (playerMove.length() == 11) {
+		// movement syntax (K, k) e1 ==> h4
+		string pieceName(1, toupper(playerMove.at(0)));
+		int startFile = tolower(playerMove.at(2)) - 97;
+		int startRank = playerMove.at(3) - 49;
+		int targetFile = tolower(playerMove.at(9)) - 97;
+		int targetRank = playerMove.at(10) - 49;
 
-	if (isMoveSyntaxCorrect(pieceName, startFile, startRank, targetFile, targetRank)) {
-		if (isPlayerPiece(isWhiteToMove, chessBoard, startFile, startRank)) {
-			if (isPieceInLocation(pieceName, chessBoard, startFile, startRank)) {
-				if (!isTreason(isWhiteToMove, chessBoard, targetFile, targetRank)) {
-					if (isMoveLegal(pieceName, chessBoard, startFile, startRank, targetFile, targetRank)) {
-						showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
+		if (isMoveSyntaxCorrect(pieceName, startFile, startRank, targetFile, targetRank)) {
+			if (isPlayerPiece(isWhiteToMove, chessBoard, startFile, startRank)) {
+				if (isPieceInLocation(pieceName, chessBoard, startFile, startRank)) {
+					if (!isTreason(isWhiteToMove, chessBoard, targetFile, targetRank)) {
+						if (isMoveLegal(pieceName, chessBoard, startFile, startRank, targetFile, targetRank)) {
+							showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
+						}
+						else {
+							string errorMessage = "\t This move is not legal try again";
+							tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
+						}
 					}
 					else {
-						string errorMessage = "\t This move is not legal try again";
+						string errorMessage = "\t You can not attack on your own pieces";
 						tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 					}
 				}
 				else {
-					string errorMessage = "\t You can not attack on your own pieces";
+					string errorMessage = "\t There is no " + pieceName + " in " + playerMove.at(2) + playerMove.at(3) + " choose again.";
 					tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 				}
 			}
 			else {
-				string errorMessage = "\t There is no " + pieceName + " in " + playerMove.at(2) + playerMove.at(3) + " choose again.";
+				string errorMessage = "\t  Please select one of your pieces.";
 				tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 			}
 		}
 		else {
-			string errorMessage = "\t  Please select one of your pieces.";
+			string errorMessage = "\tPlease use syntax structure correctly.\n\tExample : K a3 ==> f6\n\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
 			tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 		}
 	}
 	else {
-		string errorMessage = "\t Please use syntax structure correctly.\n\tExample : K a3 ==> f6\n\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
+		string errorMessage = "\tPlease use syntax structure correctly.\n\tExample : K a3 ==> f6\n\tK is piece name, a and f are file names in chess board, 3 and 6 are rank numbers in chess board.";
 		tryAnotherMove(chessBoard, isWhiteToMove, errorMessage);
 	}
 }
