@@ -34,6 +34,8 @@ struct boardSquares
 	// one of these letters (a, b, c, d, e, f, g, h)
 	string fileName;
 	pieceData pieceData;
+	bool isUnderWhiteAttack;
+	bool isUnderBlackAttack;
 };
 
 struct piecesColor {
@@ -108,34 +110,35 @@ boardSquares** makeChessBoard() {
 			chessBoard[i][j].isWhite = (i + j) % 2 == 0 ? false : true;
 			chessBoard[i][j].rankNum = i + 1;
 			chessBoard[i][j].fileName = fileNames[j];
+			chessBoard[i][j].isUnderBlackAttack = false;
+			chessBoard[i][j].isUnderWhiteAttack = false;
 			//chessBoard[i][j].pieceData.currentPiece = giveFirstPieceArrangment(i, j);
 			//chessBoard[i][j].pieceData.color = givePiecesColor(i);
 
-			// test code
 			chessBoard[i][j].pieceData.currentPiece = " ";
-			chessBoard[i][j].pieceData.color = "";
-			if (i == 0 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 7 && j == 4) {
+			
+			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 0 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
+			if (i == 3 && j == 3) {
+				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 7 && j == 7) {
+			if (i == 1 && j == 1) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 0 && j == 0) {
+			if (i == 6 && j == 6) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "white";
+			}		
+			if (i == 3 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 7 && j == 0) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
+			if (i == 5 && j == 2) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -171,19 +174,18 @@ string showBoard(boardSquares** chessBoard, bool isWhiteToMove) {
 		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
-				colorLine = colorLine + "|#   #|";
+				//colorLine = colorLine + "|#   #|";
+				colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
 			}
 			else {
-				colorLine = colorLine + "|     |";
+				//colorLine = colorLine + "|     |";
+				colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
 			}
 		}
 		colorLine = colorLine + "\n\t";
 
 		stringOfBoard = stringOfBoard + colorLine + to_string(i + 1) + " ";
 		for (int j = 0; j < 8; j++) {
-			//// + is the white sqaure sign and i want to show + in only white
-			//string gapLeft = (chessBoard[i][j].pieceData.color ? "+ " : "- ");
-			//string gapRight = (chessBoard[i][j].pieceData.color ? " +" : " -");
 			piecesColor symbol = givePieceColorSymbol(chessBoard[i][j].pieceData.color);
 			 
 			//stringOfBoard = stringOfBoard + "| " + chessBoard[i][j].fileName + "" + to_string(chessBoard[i][j].rankNum) + " |";
@@ -259,6 +261,61 @@ void tryAnotherMove(boardSquares** chessBoard, bool isWhiteToMove, string errorM
 	makeMove(playerMove, chessBoard, isWhiteToMove);
 }
 
+bool isUnderKingAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+	for (int a = -1; a <= 1; a++) {
+		for (int b = -1; b <= 1; b++) {
+			if (i + a < 0 || i + a > 7) continue;
+			if (j + b < 0 || j + b > 7) continue;
+
+			if (chessBoard[i + a][j + b].pieceData.currentPiece == "K") {
+				if (chessBoard[i + a][j + b].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+
+	return true;
+}
+
+bool checkIsUnderWhiteAttack(int i, int j, boardSquares** chessBoard) {
+	if (isUnderKingAttack(i, j, chessBoard, "white")) {
+		return true;
+	}
+	else if(isUnderRookAttack(i, j, chessBoard, "white")) {
+		return true;
+	}
+
+	return false;
+}
+
+bool checkIsUnderBlackAttack(int i, int j, boardSquares** chessBoard) {
+	if (isUnderKingAttack(i, j, chessBoard, "black")) {
+		return true;
+	}
+	
+	return false;
+}
+
+boardSquares** findUnderAttackSquares(boardSquares** chessBoard) {
+	boardSquares** newChessBoard = chessBoard;
+
+	for (int i = 0; i < 8; i++) {
+		for (int j = 0; j < 8; j++) {
+			// each sqaure have four options (being under white attack, black attack, both of them, none of them)
+			newChessBoard[i][j].isUnderWhiteAttack = checkIsUnderWhiteAttack(i, j, chessBoard);
+			newChessBoard[i][j].isUnderBlackAttack = checkIsUnderBlackAttack(i, j, chessBoard);
+		}
+	}
+
+	return newChessBoard;
+}
+
 void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, int startRank, int targetFile, int targetRank, bool isWhiteToMove) {
 	string playerMove;
 	boardSquares** newChessBoard = chessBoard;
@@ -286,7 +343,7 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 		specialMove = "none";
 	}
 	system("CLS");
-	cout << "\t" << showBoard(newChessBoard, !isWhiteToMove);
+	cout << "\t" << showBoard(findUnderAttackSquares(newChessBoard), !isWhiteToMove);
 	getline(cin, playerMove);
 	makeMove(playerMove, newChessBoard, !isWhiteToMove);
 
@@ -688,7 +745,7 @@ int main() {
 
 	bool isWhiteToMove = true;
 
-	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
+	cout << "\t" << showBoard(findUnderAttackSquares(chessBoard), isWhiteToMove);
 	getline(cin, playerMove);
 	makeMove(playerMove, chessBoard, isWhiteToMove);
 	cout << "\n";
