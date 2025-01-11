@@ -117,30 +117,14 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 			
-			if (i == 5 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 3 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 1 && j == 1) {
+			if (i == 3 && j == 6) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 6 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
+			if (i == 4 && j == 6) {
+				chessBoard[i][j].pieceData.currentPiece = "Q";
 				chessBoard[i][j].pieceData.color = "white";
 			}		
-			if (i == 3 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 5 && j == 2) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "black";
-			}
 		}
 	}
 
@@ -268,6 +252,7 @@ bool isUnderKingAttack(int i, int j, boardSquares** chessBoard, string attackerC
 			if (j + b < 0 || j + b > 7) continue;
 
 			if (chessBoard[i + a][j + b].pieceData.currentPiece == "K") {
+				// setting attack color depends on pieces
 				if (chessBoard[i + a][j + b].pieceData.color == attackerColor) {
 					return true;
 				}
@@ -279,26 +264,89 @@ bool isUnderKingAttack(int i, int j, boardSquares** chessBoard, string attackerC
 }
 
 bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
-
-	return true;
-}
-
-bool checkIsUnderWhiteAttack(int i, int j, boardSquares** chessBoard) {
-	if (isUnderKingAttack(i, j, chessBoard, "white")) {
-		return true;
+	// checking higher ranks
+	for (int a = i + 1; a < 7; a++) {
+		if (chessBoard[a][j].pieceData.currentPiece != " ") {
+			// rook and qween have same way to attack and same way to checking for being under attack
+			if (chessBoard[a][j].pieceData.currentPiece == "R" || chessBoard[a][j].pieceData.currentPiece == "Q") {
+				// setting attack color depends on pieces
+				if (chessBoard[a][j].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
 	}
-	else if(isUnderRookAttack(i, j, chessBoard, "white")) {
-		return true;
+	// checking lower ranks
+	for (int a = i - 1; a > 0; a--) {
+		if (chessBoard[a][j].pieceData.currentPiece != " ") {
+			// rook and qween have same way to attack and same way to checking for being under attack
+			if (chessBoard[a][j].pieceData.currentPiece == "R" || chessBoard[a][j].pieceData.currentPiece == "Q") {
+				// setting attack color depends on pieces
+				if (chessBoard[a][j].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
 	}
-
+	// checking higher files
+	for (int a = j + 1; a < 7; a++) {
+		if (chessBoard[i][a].pieceData.currentPiece != " ") {
+			// rook and qween have same way to attack and same way to checking for being under attack
+			if (chessBoard[i][a].pieceData.currentPiece == "R" || chessBoard[i][a].pieceData.currentPiece == "Q") {
+				// setting attack color depends on pieces
+				if (chessBoard[i][a].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+	// checking lower files
+	for (int a = j - 1; a > 0; a--) {
+		if (chessBoard[i][a].pieceData.currentPiece != " ") {
+			// rook and qween have same way to attack and same way to checking for being under attack
+			if (chessBoard[i][a].pieceData.currentPiece == "R" || chessBoard[i][a].pieceData.currentPiece == "Q") {
+				// setting attack color depends on pieces
+				if (chessBoard[i][a].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
 	return false;
 }
 
-bool checkIsUnderBlackAttack(int i, int j, boardSquares** chessBoard) {
-	if (isUnderKingAttack(i, j, chessBoard, "black")) {
+bool checkIsUnderAttack(int i, int j, boardSquares** chessBoard, string color) {
+	if (isUnderKingAttack(i, j, chessBoard, color)) {
+		//return true;
+	}
+	else if(isUnderRookAttack(i, j, chessBoard, color)) {
 		return true;
 	}
-	
+
 	return false;
 }
 
@@ -308,8 +356,8 @@ boardSquares** findUnderAttackSquares(boardSquares** chessBoard) {
 	for (int i = 0; i < 8; i++) {
 		for (int j = 0; j < 8; j++) {
 			// each sqaure have four options (being under white attack, black attack, both of them, none of them)
-			newChessBoard[i][j].isUnderWhiteAttack = checkIsUnderWhiteAttack(i, j, chessBoard);
-			newChessBoard[i][j].isUnderBlackAttack = checkIsUnderBlackAttack(i, j, chessBoard);
+			newChessBoard[i][j].isUnderWhiteAttack = checkIsUnderAttack(i, j, chessBoard, "white");
+			newChessBoard[i][j].isUnderBlackAttack = checkIsUnderAttack(i, j, chessBoard, "black");
 		}
 	}
 
@@ -574,7 +622,24 @@ bool isLegalMoveForK(boardSquares** chessBoard, int startFile, int startRank, in
 	// each move for king is right, left, top, bottom, right top, right bottom, left top, left bottom
 	const int qweenSideCastleDistance = 3;
 	const int kingSideCastleDistance = 2;
+	const string pieceColor = chessBoard[startRank][startFile].pieceData.color;
 
+	// king can not go to under attack squares
+	// white king
+	if (chessBoard[startRank][startFile].pieceData.color == "white") {
+        // white king can't go to under black attack squares
+		if (chessBoard[targetRank][targetFile].isUnderBlackAttack) {
+			return false;
+		}
+	}
+	// black king
+	else {
+		// black king can't go to under white attack squares
+		if (chessBoard[targetRank][targetFile].isUnderWhiteAttack) {
+			return false;
+		}
+	}
+	
 	// checking that movement range is just on block
 	if (abs(targetRank - startRank) == 1) {
 		// it can be just vertical or both (vertical and horizontal)
