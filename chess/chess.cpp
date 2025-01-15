@@ -117,14 +117,11 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 			
-			if (i == 3 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 4 && j == 6) {
+
+			if (i == 4 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "Q";
 				chessBoard[i][j].pieceData.color = "white";
-			}		
+			}
 		}
 	}
 
@@ -263,11 +260,11 @@ bool isUnderKingAttack(int i, int j, boardSquares** chessBoard, string attackerC
 	return false;
 }
 
-bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+bool isUnderRookAndQweenAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+	// in rook or qween move (only vertical or only horizontal moves) we need to check just ranks or just files
 	// checking higher ranks
-	for (int a = i + 1; a < 7; a++) {
+	for (int a = i + 1; a <= 7; a++) {
 		if (chessBoard[a][j].pieceData.currentPiece != " ") {
-			// rook and qween have same way to attack and same way to checking for being under attack
 			if (chessBoard[a][j].pieceData.currentPiece == "R" || chessBoard[a][j].pieceData.currentPiece == "Q") {
 				// setting attack color depends on pieces
 				if (chessBoard[a][j].pieceData.color == attackerColor) {
@@ -283,9 +280,8 @@ bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerC
 		}
 	}
 	// checking lower ranks
-	for (int a = i - 1; a > 0; a--) {
+	for (int a = i - 1; a >= 0; a--) {
 		if (chessBoard[a][j].pieceData.currentPiece != " ") {
-			// rook and qween have same way to attack and same way to checking for being under attack
 			if (chessBoard[a][j].pieceData.currentPiece == "R" || chessBoard[a][j].pieceData.currentPiece == "Q") {
 				// setting attack color depends on pieces
 				if (chessBoard[a][j].pieceData.color == attackerColor) {
@@ -301,9 +297,8 @@ bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerC
 		}
 	}
 	// checking higher files
-	for (int a = j + 1; a < 7; a++) {
+	for (int a = j + 1; a <= 7; a++) {
 		if (chessBoard[i][a].pieceData.currentPiece != " ") {
-			// rook and qween have same way to attack and same way to checking for being under attack
 			if (chessBoard[i][a].pieceData.currentPiece == "R" || chessBoard[i][a].pieceData.currentPiece == "Q") {
 				// setting attack color depends on pieces
 				if (chessBoard[i][a].pieceData.color == attackerColor) {
@@ -319,12 +314,80 @@ bool isUnderRookAttack(int i, int j, boardSquares** chessBoard, string attackerC
 		}
 	}
 	// checking lower files
-	for (int a = j - 1; a > 0; a--) {
+	for (int a = j - 1; a >= 0; a--) {
 		if (chessBoard[i][a].pieceData.currentPiece != " ") {
-			// rook and qween have same way to attack and same way to checking for being under attack
 			if (chessBoard[i][a].pieceData.currentPiece == "R" || chessBoard[i][a].pieceData.currentPiece == "Q") {
 				// setting attack color depends on pieces
 				if (chessBoard[i][a].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+	return false;
+}
+
+bool isUnderBishopAndQweenAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+	// in bishop or qween move (both vertical and horizontal at the same time) we need to check both ranks and files
+	// checking higher ranks and higher files
+	for (int a = i + 1, b = j + 1; a <= 7; a++, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece != " ") {
+			if (chessBoard[a][b].pieceData.currentPiece == "B" || chessBoard[a][b].pieceData.currentPiece == "Q") {
+				if (chessBoard[a][b].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+	// checking higher ranks and lower files
+	for (int a = i + 1, b = j - 1; a <= 7; a++, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece != " ") {
+			if (chessBoard[a][b].pieceData.currentPiece == "B" || chessBoard[a][b].pieceData.currentPiece == "Q") {
+				if (chessBoard[a][b].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+	// checking lower ranks and higher files
+	for (int a = i - 1, b = j + 1; a >= 0; a--, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece != " ") {
+			if (chessBoard[a][b].pieceData.currentPiece == "B" || chessBoard[a][b].pieceData.currentPiece == "Q") {
+				if (chessBoard[a][b].pieceData.color == attackerColor) {
+					return true;
+				}
+				else {
+					break;
+				}
+			}
+			else {
+				break;
+			}
+		}
+	}
+	// checking lower ranks and lower files
+	for (int a = i - 1, b = j - 1; a >= 0; a--, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece != " ") {
+			if (chessBoard[a][b].pieceData.currentPiece == "B" || chessBoard[a][b].pieceData.currentPiece == "Q") {
+				if (chessBoard[a][b].pieceData.color == attackerColor) {
 					return true;
 				}
 				else {
@@ -343,7 +406,10 @@ bool checkIsUnderAttack(int i, int j, boardSquares** chessBoard, string color) {
 	if (isUnderKingAttack(i, j, chessBoard, color)) {
 		//return true;
 	}
-	else if(isUnderRookAttack(i, j, chessBoard, color)) {
+	else if(isUnderRookAndQweenAttack(i, j, chessBoard, color)) {
+		return true;
+	}
+	else if (isUnderBishopAndQweenAttack(i, j, chessBoard, color)) {
 		return true;
 	}
 
