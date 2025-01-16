@@ -117,36 +117,20 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 		
-			if (i == 2 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "P";	
+			if (i == 1 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "N";	
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 2 && j == 1) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 2 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 2 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 6 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
+			if (i == 6 && j == 4) {
+				chessBoard[i][j].pieceData.currentPiece = "N";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 6 && j == 1) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "black";
+			if (i == 1 && j == 2) {
+				chessBoard[i][j].pieceData.currentPiece = "N";
+				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 6 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 6 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
+			if (i == 5 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "N";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
@@ -463,7 +447,85 @@ bool isUnderPawnAttack(int i, int j, boardSquares** chessBoard, string attackerC
 			}
 		}
 	}
+	return false;
+}
 
+bool isUnderKnightAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+	// each knight can attack 8 squares (2 top right, 2 top left, 2 bottom right, 2 bottom left)
+	int twoLeft = j + 2,
+		twoRight = j - 2,
+		oneLeft = j + 1,
+		oneRight = j - 1,
+		oneTop = i - 1,
+		oneBottom = i + 1,
+		twoTop = i - 2,
+		twoBottom = i + 2;
+
+	if (oneTop >= 0) {
+		if (twoLeft <= 7) {
+			if (chessBoard[oneTop][twoLeft].pieceData.currentPiece == "N") {
+				if (chessBoard[oneTop][twoLeft].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+		if (twoRight >= 0) {
+			if (chessBoard[oneTop][twoRight].pieceData.currentPiece == "N") {
+				if (chessBoard[oneTop][twoRight].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+	}
+	if (twoTop >= 0) {
+		if (oneLeft <= 7) {
+			if (chessBoard[twoTop][oneLeft].pieceData.currentPiece == "N") {
+				if (chessBoard[twoTop][oneLeft].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+		if (oneRight >= 0) {
+			if (chessBoard[twoTop][oneRight].pieceData.currentPiece == "N") {
+				if (chessBoard[twoTop][oneRight].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+	}
+	if (oneBottom <= 7) {
+		if (twoLeft <= 7) {
+			if (chessBoard[oneBottom][twoLeft].pieceData.currentPiece == "N") {
+				if (chessBoard[oneBottom][twoLeft].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+		if (twoRight >= 0) {
+			if (chessBoard[oneBottom][twoRight].pieceData.currentPiece == "N") {
+				if (chessBoard[oneBottom][twoRight].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+	}
+	if (twoBottom <= 7) {
+		if (oneLeft <= 7) {
+			if (chessBoard[twoBottom][oneLeft].pieceData.currentPiece == "N") {
+				if (chessBoard[twoBottom][oneLeft].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+		if (oneRight >= 0) {
+			if (chessBoard[twoBottom][oneRight].pieceData.currentPiece == "N") {
+				if (chessBoard[twoBottom][oneRight].pieceData.color == attackerColor) {
+					return true;
+				}
+			}
+		}
+	}
+	
 	return false;
 }
 
@@ -478,6 +540,9 @@ bool checkIsUnderAttack(int i, int j, boardSquares** chessBoard, string color) {
 		return true;
 	}
 	else if (isUnderPawnAttack(i, j, chessBoard, color)) {
+		return true;
+	}
+	else if (isUnderKnightAttack(i, j, chessBoard, color)) {
 		return true;
 	}
 
