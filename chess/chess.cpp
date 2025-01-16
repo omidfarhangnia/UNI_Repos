@@ -116,11 +116,38 @@ boardSquares** makeChessBoard() {
 			//chessBoard[i][j].pieceData.color = givePiecesColor(i);
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
-			
-
-			if (i == 4 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
+		
+			if (i == 2 && j == 3) {
+				chessBoard[i][j].pieceData.currentPiece = "P";	
 				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 2 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 2 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 2 && j == 6) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 6 && j == 3) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 6 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 6 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 6 && j == 6) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
 	}
@@ -402,14 +429,55 @@ bool isUnderBishopAndQweenAttack(int i, int j, boardSquares** chessBoard, string
 	return false;
 }
 
+bool isUnderPawnAttack(int i, int j, boardSquares** chessBoard, string attackerColor) {
+	int top = i - 1, bottom = i + 1, right = j - 1, left = j + 1;
+	if (top >= 0 && bottom <= 7) {
+		if (left >= 0 && right <= 7) {
+			// white pawns attak to (one block top,one block right and one block top, one block left) sqaures
+			if (attackerColor == "white") {
+				if (chessBoard[top][right].pieceData.currentPiece == "P") {
+					if (chessBoard[top][right].pieceData.color == "white") {
+						return true;
+					}
+				}
+				if (chessBoard[top][left].pieceData.currentPiece == "P") {
+					if (chessBoard[top][left].pieceData.color == "white") {
+						return true;
+					}
+				}
+			}
+			// black pawns attak to (one block bottom,one block right and one block bottom, one block left) sqaures
+			else {
+				if (chessBoard[bottom][right].pieceData.currentPiece == "P") {
+					if (chessBoard[bottom][right].pieceData.color == "black") {
+						return true;
+
+					}
+				}
+				else if (chessBoard[bottom][left].pieceData.currentPiece == "P") {
+					if (chessBoard[bottom][left].pieceData.color == "black") {
+						return true;
+
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool checkIsUnderAttack(int i, int j, boardSquares** chessBoard, string color) {
 	if (isUnderKingAttack(i, j, chessBoard, color)) {
-		//return true;
+		return true;
 	}
 	else if(isUnderRookAndQweenAttack(i, j, chessBoard, color)) {
 		return true;
 	}
 	else if (isUnderBishopAndQweenAttack(i, j, chessBoard, color)) {
+		return true;
+	}
+	else if (isUnderPawnAttack(i, j, chessBoard, color)) {
 		return true;
 	}
 
