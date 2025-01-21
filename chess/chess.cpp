@@ -126,28 +126,28 @@ boardSquares** makeChessBoard() {
 			// white
 			if (i == 0 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "black";
+				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 0 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 1 && j == 4) {
+			if (i == 0 && j == 0) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "black";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 0 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "white";
 			}
 			// black
 			if (i == 7 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 7 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 6 && j == 4) {
+			if (i == 7 && j == 0) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 7 && j == 7) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
 	}
@@ -1005,7 +1005,7 @@ checkStruct playerCheckStatus(boardSquares** chessBoard) {
 	return checkStatus;
 }
 
-bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, checkStruct checkStatus, bool isWhiteToMove) {
+bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, checkStruct checkStatus) {
 	// copy the main chessBoard into newChessBoard
 	boardSquares** newChessBoard = new boardSquares * [8];
 	for (int i = 0; i < 8; i++) {
@@ -1052,8 +1052,57 @@ bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int s
 	return false;
 }
 
-bool isThePiecedPinned() {
+bool isThePiecePinned(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, bool isWhiteToMove) {
+	// if the player move one of his pieces and make itself check that piece was pinned
+	// and player can not move pinned pieces
+	// copy the main chessBoard into newChessBoard
+	boardSquares** newChessBoard = new boardSquares * [8];
+	for (int i = 0; i < 8; i++) {
+		newChessBoard[i] = new boardSquares[8];
+	}
+	for (int i = 0; i <= 7; i++) {
+		for (int j = 0; j <= 7; j++) {
+			newChessBoard[i][j] = chessBoard[i][j];
+		}
+	}
 
+	newChessBoard[targetRank][targetFile].pieceData = chessBoard[startRank][startFile].pieceData;
+	newChessBoard[startRank][startFile].pieceData.color = "";
+	newChessBoard[startRank][startFile].pieceData.currentPiece = " ";
+	if (specialMove == "pawnPromotion") {
+		newChessBoard[targetRank][targetFile].pieceData.currentPiece = "Q";
+		specialMove = "none";
+	}
+	else if (specialMove == "enPassant") {
+		newChessBoard[startRank][targetFile].pieceData.currentPiece = " ";
+		specialMove = "none";
+	}
+	// update this part
+	else if (specialMove == "kingSideCastle") {
+		newChessBoard[startRank][5].pieceData = chessBoard[startRank][7].pieceData;
+		newChessBoard[startRank][7].pieceData.currentPiece = " ";
+		newChessBoard[startRank][7].pieceData.color = "";
+		specialMove = "none";
+	}
+	else if (specialMove == "qweenSideCastle") {
+		newChessBoard[startRank][3].pieceData = chessBoard[startRank][0].pieceData;
+		newChessBoard[startRank][0].pieceData.currentPiece = " ";
+		newChessBoard[startRank][0].pieceData.color = "";
+		specialMove = "none";
+	}
+
+	checkStruct checkStatusAfterMove = playerCheckStatus(findUnderAttackSquares(newChessBoard));
+
+	if (isWhiteToMove) {
+		if (checkStatusAfterMove.isWhiteCheck) {
+			return true;
+		}
+	}
+	else {
+		if (checkStatusAfterMove.isBlackCheck) {
+			return true;
+		}
+	}
 
 	return false;
 }
@@ -1076,7 +1125,7 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 							checkStruct checkStatus = playerCheckStatus(chessBoard);
 
 							if (!checkStatus.isBlackCheck && !checkStatus.isWhiteCheck) {
-								if (isThePiecedPinned()) {
+								if (!isThePiecePinned(chessBoard, startFile, startRank, targetFile, targetRank, isWhiteToMove)) {
 									showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
 								}
 								else {
@@ -1085,7 +1134,7 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove) 
 								}
 							}
 							else {
-								if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, targetFile, targetRank, checkStatus, isWhiteToMove)) {
+								if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, targetFile, targetRank, checkStatus)) {
 									showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
 								}
 								else {
