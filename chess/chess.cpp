@@ -124,30 +124,21 @@ boardSquares** makeChessBoard() {
 			chessBoard[i][j].pieceData.currentPiece = " ";
 
 			// white
-			if (i == 0 && j == 4) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
-			}
 			if (i == 0 && j == 0) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 0 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			// black
-			if (i == 7 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 7 && j == 0) {
+			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 7 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "black";
+			if (i == 5 && j == 0) {
+				chessBoard[i][j].pieceData.currentPiece = "K";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 5 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
 			}
 		}
 	}
@@ -1071,24 +1062,19 @@ bool isThePiecePinned(boardSquares** chessBoard, int startFile, int startRank, i
 	newChessBoard[startRank][startFile].pieceData.currentPiece = " ";
 	if (specialMove == "pawnPromotion") {
 		newChessBoard[targetRank][targetFile].pieceData.currentPiece = "Q";
-		specialMove = "none";
 	}
 	else if (specialMove == "enPassant") {
 		newChessBoard[startRank][targetFile].pieceData.currentPiece = " ";
-		specialMove = "none";
 	}
-	// update this part
 	else if (specialMove == "kingSideCastle") {
 		newChessBoard[startRank][5].pieceData = chessBoard[startRank][7].pieceData;
 		newChessBoard[startRank][7].pieceData.currentPiece = " ";
 		newChessBoard[startRank][7].pieceData.color = "";
-		specialMove = "none";
 	}
 	else if (specialMove == "qweenSideCastle") {
 		newChessBoard[startRank][3].pieceData = chessBoard[startRank][0].pieceData;
 		newChessBoard[startRank][0].pieceData.currentPiece = " ";
 		newChessBoard[startRank][0].pieceData.color = "";
-		specialMove = "none";
 	}
 
 	checkStruct checkStatusAfterMove = playerCheckStatus(findUnderAttackSquares(newChessBoard));
