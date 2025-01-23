@@ -125,19 +125,27 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 
-			if (i == 0 && j == 1) {
+			if (i == 0 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 0 && j == 0) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 7 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 			if (i == 1 && j == 7) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 2 && j == 6) {
+			if (i == 5 && j == 6) {
 				chessBoard[i][j].pieceData.currentPiece = "Q";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 1 && j == 3) {
+			if (i == 5 && j == 3) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
@@ -257,25 +265,54 @@ bool isTreason(bool isWhiteToMove, boardSquares** chessBoard, int targetFile, in
 	}
 }
 
-bool canQweenSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
+bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
+	// in rook or qween move (only vertical or only horizontal moves) we need to check just ranks or just files
+	// checking higher ranks
+	for (int a = startRank + 1; a <= 7; a++) {
+		if (chessBoard[a][startFile].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking lower ranks
+	for (int a = startRank - 1; a >= 0; a--) {
+		if (chessBoard[a][startFile].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking higher files
+	for (int a = startFile + 1; a <= 7; a++) {
+		if (chessBoard[startRank][a].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking lower files
+	for (int a = startFile - 1; a >= 0; a--) {
+		if (chessBoard[startRank][a].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+				return true;
+			}
+		}
+	}
 	return false;
 }
 
-bool canRookSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
+bool canBishopOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
 	return false;
 }
 
-bool canBishopSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
-	return false;
-}
-
-bool canKnightSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
-	return false;
-}
-
-bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
-	return false;
-}
+//bool canKnightSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
+//	return false;
+//}
+//
+//bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
+//	return false;
+//}
 
 bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 	string checkedTeamColor = (checkStatus.isWhiteCheck ? "white" : "black");
@@ -297,23 +334,23 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 
 			if (kingTargetRank <= 7 && kingTargetRank >= 0) {
 				if (kingTargetFile <= 7 && kingTargetFile >= 0) {
-					if (chessBoard[kingTargetRank][kingTargetFile].pieceData.currentPiece == " ") {
-						if (checkedTeamColor == "white") {
-							// squares that are near white king but those are not under black attack
-							if (!chessBoard[kingTargetRank][kingTargetFile].isUnderBlackAttack) {
-								// checking that it is a good square for scaping
-								if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
-									return false;
-								}
+					if (checkedTeamColor == "white") {
+						// squares that are near white king but those are not under black attack
+						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderBlackAttack) {
+							// checking that it is a good square for scaping
+							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
+								cout << kingTargetRank << " " << kingTargetFile;
+								return false;
 							}
 						}
-						else {
-							// squares that are near black king but those are not under white attack
-							if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
-								// checking that it is a good square for scaping
-								if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
-									return false;
-								}
+					}
+					else {
+						// squares that are near black king but those are not under white attack
+						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
+							// checking that it is a good square for scaping
+							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
+								cout << kingTargetRank << " " << kingTargetFile;
+								return false;
 							}
 						}
 					}
@@ -328,30 +365,30 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 			if (chessBoard[i][j].pieceData.currentPiece != " ") {
 				if (chessBoard[i][j].pieceData.color == checkedTeamColor) {
 					if (chessBoard[i][j].pieceData.currentPiece == "Q") {
-						if (canQweenSaveKing(chessBoard, i, j)) {
+						if (canRookOrQweenSaveKing(chessBoard, i, j, checkStatus) || canBishopOrQweenSaveKing(chessBoard, i, j, checkStatus)) {
 							return false;
 						}
 					}
 					else if (chessBoard[i][j].pieceData.currentPiece == "R") {
-						if (canRookSaveKing(chessBoard, i, j)) {
+						if (canRookOrQweenSaveKing(chessBoard, i, j, checkStatus)) {
 							return false;
 						}
 					}
-					else if (chessBoard[i][j].pieceData.currentPiece == "B") {
-						if (canBishopSaveKing(chessBoard, i, j)) {
-							return false;
-						}
-					}
-					else if (chessBoard[i][j].pieceData.currentPiece == "N") {
-						if (canKnightSaveKing(chessBoard, i, j)) {
-							return false;
-						}
-					}
-					else if (chessBoard[i][j].pieceData.currentPiece == "P") {
-						if (canPawnSaveKing(chessBoard, i, j)) {
-							return false;
-						}
-					}
+					//else if (chessBoard[i][j].pieceData.currentPiece == "B") {
+					//	if (canBishopOrQweenSaveKing(chessBoard, i, j, checkStatus)) {
+					//		return false;
+					//	}
+					//}
+					//else if (chessBoard[i][j].pieceData.currentPiece == "N") {
+					//	if (canKnightSaveKing(chessBoard, i, j, checkStatus)) {
+					//		return false;
+					//	}
+					//}
+					//else if (chessBoard[i][j].pieceData.currentPiece == "P") {
+					//	if (canPawnSaveKing(chessBoard, i, j, checkStatus)) {
+					//		return false;
+					//	}
+					//}
 				}
 			}
 		}
@@ -1263,7 +1300,15 @@ void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove, 
 									showNewBoard(chessBoard, pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
 								}
 								else {
-									string errorMessage = "\t You are checked you should do something about it.";
+									string errorMessage;
+									// moving king in a checked square
+									if (pieceName == "K") {
+										errorMessage = "\t This move is not legal try again.";
+									}
+									// moving one of pieces and doing nothing when king is checked
+									else {
+										errorMessage = "\t You are checked you should do something about it.";
+									}
 									tryAnotherMove(chessBoard, isWhiteToMove, errorMessage, checkStatus);
 								}
 							}
