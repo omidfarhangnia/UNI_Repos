@@ -129,14 +129,14 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 2 && j == 4) {
+			if (i == 7 && j == 3) {
+				chessBoard[i][j].pieceData.currentPiece = "R";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 4 && j == 7) {
 				chessBoard[i][j].pieceData.currentPiece = "B";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			//if (i == 7 && j == 1) {
-			//	chessBoard[i][j].pieceData.currentPiece = "R";
-			//	chessBoard[i][j].pieceData.color = "black";
-			//}
 			if (i == 1 && j == 7) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "white";
@@ -274,6 +274,26 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 				return true;
 			}
 		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][startFile].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		}
 	}
 	// checking lower ranks
 	for (int a = startRank - 1; a >= 0; a--) {
@@ -281,6 +301,26 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
 				return true;
 			}
+		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][startFile].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
 		}
 	}
 	// checking higher files
@@ -290,6 +330,26 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 				return true;
 			}
 		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[startRank][a].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		}
 	}
 	// checking lower files
 	for (int a = startFile - 1; a >= 0; a--) {
@@ -298,6 +358,26 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 				return true;
 			}
 		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[startRank][a].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, a, startRank, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		}
 	}
 	return false;
 }
@@ -305,33 +385,176 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 bool canBishopOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
 	// in bishop or qween move (both vertical and horizontal at the same time) we need to check both ranks and files
     // checking higher ranks and higher files
-	for (int a = startRank + 1, b = startFile + 1; a <= 7; a++, b++) {
+	for (int a = startRank + 1, b = startFile + 1; (a <= 7 && b <= 7); a++, b++) {
 		if (chessBoard[a][b].pieceData.currentPiece == " ") {
 			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
 				return true;
 			}
+		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][b].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
 		}
 	}
 	// checking higher ranks and lower files
-	for (int a = startRank + 1, b = startFile - 1; a <= 7; a++, b--) {
+	for (int a = startRank + 1, b = startFile - 1; (a <= 7 && b >= 0); a++, b--) {
 		if (chessBoard[a][b].pieceData.currentPiece == " ") {
 			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
 				return true;
 			}
+		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][b].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
 		}
 	}
 	// checking lower ranks and higher files
-	for (int a = startRank - 1, b = startFile + 1; a >= 0; a--, b++) {
+	for (int a = startRank - 1, b = startFile + 1; (a >= 0 && b <= 7); a--, b++) {
 		if (chessBoard[a][b].pieceData.currentPiece == " ") {
 			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
 				return true;
 			}
 		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][b].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		}
 	}
 	// checking lower ranks and lower files
-	for (int a = startRank - 1, b = startFile - 1; a >= 0; a--, b--) {
+	for (int a = startRank - 1, b = startFile - 1; (a >= 0 && b >= 0); a--, b--) {
 		if (chessBoard[a][b].pieceData.currentPiece == " ") {
 			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+				return true;
+			}
+		}
+		else {
+			// attacking the piece that got black team check
+			if (chessBoard[a][b].pieceData.color == "white") {
+				if (checkStatus.isBlackCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+			// attacking the piece that got white team check
+			else {
+				if (checkStatus.isWhiteCheck) {
+					if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+						return true;
+					}
+				}
+			}
+
+			break;
+		}
+	}
+
+	return false;
+}
+
+bool canKnightSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
+	// each knight can attack 8 squares (2 top right, 2 top left, 2 bottom right, 2 bottom left)
+	int twoLeft = startFile + 2,
+		twoRight = startFile - 2,
+		oneLeft = startFile + 1,
+		oneRight = startFile - 1,
+		oneTop = startRank - 1,
+		oneBottom = startRank + 1,
+		twoTop = startRank - 2,
+		twoBottom = startRank + 2;
+
+	if (oneTop >= 0) {
+		if (twoLeft <= 7) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, twoLeft, oneTop, checkStatus)) {
+				return true;
+			}
+		}
+		if (twoRight >= 0) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, twoRight, oneTop, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	if (twoTop >= 0) {
+		if (oneLeft <= 7) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneLeft, twoTop, checkStatus)) {
+				return true;
+			}
+		}
+		if (oneRight >= 0) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneRight, twoTop, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	if (oneBottom <= 7) {
+		if (twoLeft <= 7) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, twoLeft, oneBottom, checkStatus)) {
+				return true;
+			}
+		}
+		if (twoRight >= 0) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, twoRight, oneBottom, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	if (twoBottom <= 7) {
+		if (oneLeft <= 7) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneLeft, twoBottom, checkStatus)) {
+				return true;
+			}
+		}
+		if (oneRight >= 0) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneRight, twoBottom, checkStatus)) {
 				return true;
 			}
 		}
@@ -340,10 +563,6 @@ bool canBishopOrQweenSaveKing(boardSquares** chessBoard, int startRank, int star
 	return false;
 }
 
-//bool canKnightSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
-//	return false;
-//}
-//
 //bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
 //	return false;
 //}
@@ -411,11 +630,11 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 							return false;
 						}
 					}
-					//else if (chessBoard[i][j].pieceData.currentPiece == "N") {
-					//	if (canKnightSaveKing(chessBoard, i, j, checkStatus)) {
-					//		return false;
-					//	}
-					//}
+					else if (chessBoard[i][j].pieceData.currentPiece == "N") {
+						if (canKnightSaveKing(chessBoard, i, j, checkStatus)) {
+							return false;
+						}
+					}
 					//else if (chessBoard[i][j].pieceData.currentPiece == "P") {
 					//	if (canPawnSaveKing(chessBoard, i, j, checkStatus)) {
 					//		return false;
