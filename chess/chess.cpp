@@ -125,18 +125,18 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 
-			if (i == 0 && j == 5) {
+			if (i == 0 && j == 0) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 0 && j == 0) {
+			if (i == 2 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "B";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 7 && j == 1) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "black";
-			}
+			//if (i == 7 && j == 1) {
+			//	chessBoard[i][j].pieceData.currentPiece = "R";
+			//	chessBoard[i][j].pieceData.color = "black";
+			//}
 			if (i == 1 && j == 7) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "white";
@@ -145,7 +145,7 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "Q";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 5 && j == 3) {
+			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
@@ -187,12 +187,12 @@ string showBoard(boardSquares** chessBoard, bool isWhiteToMove) {
 		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
-				//colorLine = colorLine + "|#   #|";
-				colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
+				colorLine = colorLine + "|#   #|";
+				//colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
 			}
 			else {
-				//colorLine = colorLine + "|     |";
-				colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
+				colorLine = colorLine + "|     |";
+				//colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
 			}
 		}
 		colorLine = colorLine + "\n\t";
@@ -303,6 +303,40 @@ bool canRookOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startF
 }
 
 bool canBishopOrQweenSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
+	// in bishop or qween move (both vertical and horizontal at the same time) we need to check both ranks and files
+    // checking higher ranks and higher files
+	for (int a = startRank + 1, b = startFile + 1; a <= 7; a++, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking higher ranks and lower files
+	for (int a = startRank + 1, b = startFile - 1; a <= 7; a++, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking lower ranks and higher files
+	for (int a = startRank - 1, b = startFile + 1; a >= 0; a--, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	// checking lower ranks and lower files
+	for (int a = startRank - 1, b = startFile - 1; a >= 0; a--, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, b, a, checkStatus)) {
+				return true;
+			}
+		}
+	}
+
 	return false;
 }
 
@@ -339,7 +373,6 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderBlackAttack) {
 							// checking that it is a good square for scaping
 							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
-								cout << kingTargetRank << " " << kingTargetFile;
 								return false;
 							}
 						}
@@ -349,7 +382,6 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
 							// checking that it is a good square for scaping
 							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
-								cout << kingTargetRank << " " << kingTargetFile;
 								return false;
 							}
 						}
@@ -374,11 +406,11 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 							return false;
 						}
 					}
-					//else if (chessBoard[i][j].pieceData.currentPiece == "B") {
-					//	if (canBishopOrQweenSaveKing(chessBoard, i, j, checkStatus)) {
-					//		return false;
-					//	}
-					//}
+					else if (chessBoard[i][j].pieceData.currentPiece == "B") {
+						if (canBishopOrQweenSaveKing(chessBoard, i, j, checkStatus)) {
+							return false;
+						}
+					}
 					//else if (chessBoard[i][j].pieceData.currentPiece == "N") {
 					//	if (canKnightSaveKing(chessBoard, i, j, checkStatus)) {
 					//		return false;
