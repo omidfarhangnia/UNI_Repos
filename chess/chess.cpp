@@ -59,6 +59,7 @@ string specialMove = "none";
 void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove, checkStruct checkStatus);
 checkStruct playerCheckStatus(boardSquares** chessBoard);
 bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, checkStruct checkStatus);
+bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank);
 
 //vector<string> givePlayerNames() {
 //    string whitePlayerName, blackPlayerName;
@@ -125,33 +126,37 @@ boardSquares** makeChessBoard() {
 
 			chessBoard[i][j].pieceData.currentPiece = " ";
 
-			if (i == 0 && j == 0) {
+			if (i == 3 && j == 0) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "black";
+				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 7 && j == 3) {
+			if (i == 1 && j == 1) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			//if (i == 7 && j == 0) {
+			//	chessBoard[i][j].pieceData.currentPiece = "R";
+			//	chessBoard[i][j].pieceData.color = "white";
+			//}
+			if (i == 1 && j == 7) {
 				chessBoard[i][j].pieceData.currentPiece = "R";
 				chessBoard[i][j].pieceData.color = "black";
 			}
 			if (i == 4 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 1 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 5 && j == 6) {
 				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
 			}
 			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 5 && j == 4) {
+			if (i == 6 && j == 4) {
 				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "white";
+				chessBoard[i][j].pieceData.color = "black";
+			}
+			if (i == 6 && j == 5) {
+				chessBoard[i][j].pieceData.currentPiece = "B";
+				chessBoard[i][j].pieceData.color = "black";
 			}
 		}
 	}
@@ -187,12 +192,12 @@ string showBoard(boardSquares** chessBoard, bool isWhiteToMove) {
 		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
-				colorLine = colorLine + "|#   #|";
-				//colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
+				//colorLine = colorLine + "|#   #|";
+				colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
 			}
 			else {
-				colorLine = colorLine + "|     |";
-				//colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
+				//colorLine = colorLine + "|     |";
+				colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
 			}
 		}
 		colorLine = colorLine + "\n\t";
@@ -563,9 +568,82 @@ bool canKnightSaveKing(boardSquares** chessBoard, int startRank, int startFile, 
 	return false;
 }
 
-//bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile) {
-//	return false;
-//}
+bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile, checkStruct checkStatus) {
+	int oneTop = startRank + 1,
+		twoTop = startRank + 2,
+		oneRight = startFile + 1,
+		oneLeft = startFile - 1,
+		oneBottom = startRank - 1,
+		twoBottom = startRank - 2;
+
+	// when pawn is going straight
+	if (oneTop <= 7) {
+		// going right top
+		if (oneRight <= 7) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneRight, oneTop)) {
+				if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneRight, oneTop, checkStatus)) {
+					return true;
+				}
+			}
+		}
+		// going left top
+		if (oneLeft >= 0) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneLeft, oneTop)) {
+				if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneLeft, oneTop, checkStatus)) {
+					return true;
+				}
+			}
+		}
+		// going one square top
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, oneTop)) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, oneTop, checkStatus)) {
+				return true;
+			}
+		}
+	}
+    if (twoTop <= 7) {
+		// going two square top
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, twoTop)) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, twoTop, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	if (oneBottom >= 0) {
+		// going right bottom
+		if (oneRight <= 7) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneRight, oneBottom)) {
+				if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneRight, oneBottom, checkStatus)) {
+					return true;
+				}
+			}
+		}
+		// going left bottom
+		if (oneLeft >= 0) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneLeft, oneBottom)) {
+				if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, oneLeft, oneBottom, checkStatus)) {
+					return true;
+				}
+			}
+		}
+		// going one square bottom
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, oneBottom)) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, oneBottom, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	if (twoBottom >= 0) {
+		// going two square bottom
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, twoBottom)) {
+			if (doesMoveGetPlayerOutOfCheck(chessBoard, startFile, startRank, startFile, twoBottom, checkStatus)) {
+				return true;
+			}
+		}
+	}
+	
+	return false;
+}
 
 bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 	string checkedTeamColor = (checkStatus.isWhiteCheck ? "white" : "black");
@@ -601,6 +679,7 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
 							// checking that it is a good square for scaping
 							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
+								cout << kingTargetFile << " " << kingTargetFile << endl;
 								return false;
 							}
 						}
@@ -635,11 +714,11 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 							return false;
 						}
 					}
-					//else if (chessBoard[i][j].pieceData.currentPiece == "P") {
-					//	if (canPawnSaveKing(chessBoard, i, j, checkStatus)) {
-					//		return false;
-					//	}
-					//}
+					else if (chessBoard[i][j].pieceData.currentPiece == "P") {
+						if (canPawnSaveKing(chessBoard, i, j, checkStatus)) {
+							return false;
+						}
+					}
 				}
 			}
 		}
@@ -649,9 +728,9 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 }
 
 void showWinner(bool isWhiteWinner) {
-	cout << "\t *********** WINNER WINNER CHICKEN DINNER ***********" << endl << endl;
+	cout << "\t *************** WINNER WINNER CHICKEN DINNER ***************" << endl << endl;
 	cout << "\t congratulation the " << (isWhiteWinner ? (names[0] + " ( white player )") : (names[1] + " ( black player )")) << " is our winner." << endl << endl;
-	cout << "\t ****************************************************" << endl;
+	cout << "\t ************************************************************" << endl;
 }
 
 void continueTheGame(boardSquares** chessBoard, bool isWhiteToMove, checkStruct checkStatus) {
@@ -873,6 +952,7 @@ bool isUnderPawnAttack(int i, int j, boardSquares** chessBoard, string attackerC
 			}
 		}
 	}
+
 	return false;
 }
 
@@ -1416,6 +1496,23 @@ checkStruct playerCheckStatus(boardSquares** chessBoard) {
 }
 
 bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, checkStruct checkStatus) {
+	// player can not attack on himself/herself
+	if (chessBoard[targetRank][targetFile].pieceData.currentPiece != " ") {
+		// black king
+		if (checkStatus.isBlackCheck) {
+			// black king attack on black pieces (its not legal)
+			if (chessBoard[targetRank][targetFile].pieceData.color == "black") {
+				return false;
+			}
+		}
+		// white king
+		else {
+			// white king attack on white pieces (its not legal)
+			if (chessBoard[targetRank][targetFile].pieceData.color == "white") {
+				return false;
+			}
+		}
+	}
 	// copy the main chessBoard into newChessBoard
 	boardSquares** newChessBoard = new boardSquares * [8];
 	for (int i = 0; i < 8; i++) {
@@ -1599,7 +1696,7 @@ int main() {
 	boardSquares** chessBoard = findUnderAttackSquares(makeChessBoard());
 	string playerMove;
 
-	bool isWhiteToMove = true;
+	bool isWhiteToMove = false;
 	checkStruct checkStatus = playerCheckStatus(chessBoard);
 
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
