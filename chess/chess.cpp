@@ -48,6 +48,19 @@ struct checkStruct {
 	bool isWhiteCheck;
 };
 
+struct currentPiecesStruct {
+	int numOfWhiteQ = 0;
+	int numOfWhiteR = 0;
+	int numOfWhiteN = 0;
+	int numOfWhiteB = 0;
+	int numOfWhiteP = 0;
+	int numOfBlackQ = 0;
+	int numOfBlackR = 0;
+	int numOfBlackN = 0;
+	int numOfBlackB = 0;
+	int numOfBlackP = 0;
+};
+
 // === global data === 
 string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 //vector<string> names = givePlayerNames();
@@ -130,22 +143,10 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			if (i == 1 && j == 1) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			//if (i == 7 && j == 0) {
-			//	chessBoard[i][j].pieceData.currentPiece = "R";
-			//	chessBoard[i][j].pieceData.color = "white";
+			//if (i == 4 && j == 7) {
+			//	chessBoard[i][j].pieceData.currentPiece = "Q";
+			//	chessBoard[i][j].pieceData.color = "black";
 			//}
-			if (i == 1 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "R";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 4 && j == 7) {
-				chessBoard[i][j].pieceData.currentPiece = "Q";
-				chessBoard[i][j].pieceData.color = "black";
-			}
 			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
@@ -154,10 +155,10 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "B";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 6 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "black";
-			}
+			//if (i == 6 && j == 5) {
+			//	chessBoard[i][j].pieceData.currentPiece = "B";
+			//	chessBoard[i][j].pieceData.color = "black";
+			//}
 		}
 	}
 
@@ -727,22 +728,81 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 	return true;
 }
 
-void showWinner(bool isWhiteWinner) {
-	cout << "\t *************** WINNER WINNER CHICKEN DINNER ***************" << endl << endl;
-	cout << "\t congratulation the " << (isWhiteWinner ? (names[0] + " ( white player )") : (names[1] + " ( black player )")) << " is our winner." << endl << endl;
-	cout << "\t ************************************************************" << endl;
+bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
+	// stalemate happens in two situations (there is no move for pieces, there is no pieces)
+	string currentTeam = (isWhiteToMove ? "white" : "black");
+
+	bool isThereAnyOtherPieces = false;
+	currentPiecesStruct pieces;
+	int kingStartRank, kingStartFile;
+	for (int i = 0; i <= 7; i++) {
+		for (int j = 0; j <= 7; j++) {
+			if (chessBoard[i][j].pieceData.currentPiece == "K" && chessBoard[i][j].pieceData.color == currentTeam) {
+				kingStartRank = i;
+				kingStartFile = j;
+			}
+
+			if (chessBoard[i][j].pieceData.currentPiece != " " && chessBoard[i][j].pieceData.currentPiece != "K") {
+				isThereAnyOtherPieces = true;
+				// white pieces
+				if (chessBoard[i][j].pieceData.color == "white") {
+					if (chessBoard[i][j].pieceData.currentPiece == "Q") { pieces.numOfWhiteQ++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "R") { pieces.numOfWhiteR++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "B") { pieces.numOfWhiteB++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "N") { pieces.numOfWhiteN++; }
+					else { pieces.numOfWhiteP++; }
+				}
+				// black pieces
+				else {
+					if (chessBoard[i][j].pieceData.currentPiece == "Q") { pieces.numOfBlackQ++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "R") { pieces.numOfBlackR++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "B") { pieces.numOfBlackB++; }
+					else if (chessBoard[i][j].pieceData.currentPiece == "N") { pieces.numOfBlackN++; }
+					else { pieces.numOfWhiteP++; }
+				}
+			}
+		}
+	}
+
+	// if there is just two king on the board
+	if (!isThereAnyOtherPieces) {
+		return true;
+	}
+	cout << "white pieces " << pieces.numOfWhiteQ << " " << pieces.numOfWhiteR << " " << pieces.numOfWhiteB << " " << pieces.numOfWhiteN << " " << pieces.numOfWhiteP << endl;
+	cout << "black pieces " << pieces.numOfBlackQ << " " << pieces.numOfBlackR << " " << pieces.numOfBlackB << " " << pieces.numOfBlackN << " " << pieces.numOfBlackP;
+
+	return false;
+}
+
+void showGameResult(string resultStatus, bool isWhiteWinner) {
+	if (resultStatus == "win") {
+		cout << "\t *************** WINNER WINNER CHICKEN DINNER ***************" << endl << endl;
+		cout << "\t congratulation the " << (isWhiteWinner ? (names[0] + " ( white player )") : (names[1] + " ( black player )")) << " is our winner." << endl << endl;
+		cout << "\t ************************************************************" << endl;
+	}
+	else if (resultStatus == "stalemate") {
+		cout << "\t *********************** DRAW ***********************" << endl << endl;
+		cout << "\t there is no winner " << names[0] << " : 0.5 , " << names[1] << " : 0.5" << endl << endl;
+		cout << "\t ****************************************************" << endl;
+	}
 }
 
 void continueTheGame(boardSquares** chessBoard, bool isWhiteToMove, checkStruct checkStatus) {
 	string playerMove;
 	if (!checkStatus.isBlackCheck && !checkStatus.isWhiteCheck) {
-		getline(cin, playerMove);
-		makeMove(playerMove, chessBoard, isWhiteToMove, checkStatus);
+		if (isStaleMate(chessBoard, isWhiteToMove)) {
+			// in stalemate there is no winner or looser
+			showGameResult("stalemate", isWhiteToMove);
+		}
+		else {
+			getline(cin, playerMove);
+			makeMove(playerMove, chessBoard, isWhiteToMove, checkStatus);
+		}
 	}
 	else {
 		if (isCheckMate(chessBoard, checkStatus)) {
 			// winner is the person who played last turn
-			showWinner(!isWhiteToMove);
+			showGameResult("win", !isWhiteToMove);
 		}
 		else {
 			getline(cin, playerMove);
@@ -1696,7 +1756,7 @@ int main() {
 	boardSquares** chessBoard = findUnderAttackSquares(makeChessBoard());
 	string playerMove;
 
-	bool isWhiteToMove = false;
+	bool isWhiteToMove = true;
 	checkStruct checkStatus = playerCheckStatus(chessBoard);
 
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
