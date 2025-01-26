@@ -1,7 +1,7 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <vector>
+#include <list>
 #include <cmath>
 #include <stdlib.h>
 using namespace std;
@@ -67,6 +67,16 @@ string fileNames[] = { "a", "b", "c", "d", "e", "f", "g", "h" };
 vector<string> names = { "playerOne", "playerTwo" };
 // we have these specialMoves (pawnPromotion, enPassant, kingSideCastle, qweenSideCastle)
 string specialMove = "none";
+// this is the hisotry of players move (the six last moves)
+// each member is like this example
+// Q 6 2 7 3 white
+// Q piece name
+// 6 start file
+// 2 start rank
+// 7 target file
+// 3 target rank
+// white team color
+list<string> history = {"empty", "empty", "empty", "empty", "empty", "empty"};
 
 // === functions ===
 void makeMove(string playerMove, boardSquares** chessBoard, bool isWhiteToMove, checkStruct checkStatus);
@@ -74,17 +84,17 @@ checkStruct playerCheckStatus(boardSquares** chessBoard);
 bool doesMoveGetPlayerOutOfCheck(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank, checkStruct checkStatus);
 bool isLegalMoveForP(boardSquares** chessBoard, int startFile, int startRank, int targetFile, int targetRank);
 
-//vector<string> givePlayerNames() {
-//    string whitePlayerName, blackPlayerName;
-//
-//    cout << "please enter white player name" << endl;
-//    cin >> whitePlayerName;
-//    cout << "please enter black player name" << endl;
-//    cin >> blackPlayerName;
-//
-//    vector<string> names = { whitePlayerName , blackPlayerName };
-//    return names;
-//}
+vector<string> givePlayerNames() {
+    string whitePlayerName, blackPlayerName;
+
+    cout << "please enter white player name" << endl;
+    cin >> whitePlayerName;
+    cout << "please enter black player name" << endl;
+    cin >> blackPlayerName;
+
+    vector<string> names = { whitePlayerName , blackPlayerName };
+    return names;
+}
 
 string giveFirstPieceArrangment(int i, int j) {
 	string piece = " ";
@@ -134,32 +144,8 @@ boardSquares** makeChessBoard() {
 			chessBoard[i][j].fileName = fileNames[j];
 			chessBoard[i][j].isUnderBlackAttack = false;
 			chessBoard[i][j].isUnderWhiteAttack = false;
-			//chessBoard[i][j].pieceData.currentPiece = giveFirstPieceArrangment(i, j);
-			//chessBoard[i][j].pieceData.color = givePiecesColor(i);
-
-			chessBoard[i][j].pieceData.currentPiece = " ";
-
-			if (i == 3 && j == 0) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			//if (i == 0 && j == 7) {
-			//	chessBoard[i][j].pieceData.currentPiece = "Q";
-			//	chessBoard[i][j].pieceData.color = "white";
-			//}
-
-			if (i == 5 && j == 5) {
-				chessBoard[i][j].pieceData.currentPiece = "K";
-				chessBoard[i][j].pieceData.color = "black";
-			}
-			if (i == 2 && j == 6) {
-				chessBoard[i][j].pieceData.currentPiece = "P";
-				chessBoard[i][j].pieceData.color = "white";
-			}
-			if (i == 5 && j == 3) {
-				chessBoard[i][j].pieceData.currentPiece = "B";
-				chessBoard[i][j].pieceData.color = "black";
-			}
+			chessBoard[i][j].pieceData.currentPiece = giveFirstPieceArrangment(i, j);
+			chessBoard[i][j].pieceData.color = givePiecesColor(i);
 		}
 	}
 
@@ -195,10 +181,12 @@ string showBoard(boardSquares** chessBoard, bool isWhiteToMove) {
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
 				colorLine = colorLine + "|#   #|";
+				// it will show under attack squares
 				//colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
 			}
 			else {
 				colorLine = colorLine + "|     |";
+				// it will show under attack squares
 				//colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
 			}
 		}
@@ -681,7 +669,6 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 						if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
 							// checking that it is a good square for scaping
 							if (doesMoveGetPlayerOutOfCheck(chessBoard, kingStartFile, kingStartRank, kingTargetFile, kingTargetRank, checkStatus)) {
-								cout << kingTargetFile << " " << kingTargetFile << endl;
 								return false;
 							}
 						}
@@ -1065,7 +1052,6 @@ bool canKingMove(boardSquares** chessBoard, int startRank, int startFile) {
 bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
 	// stalemate happens in two situations (there is no move for pieces, there is no pieces)
 	string currentTeam = (isWhiteToMove ? "white" : "black");
-
 	currentPiecesStruct pieces;
 	bool canWhiteMove = false, canBlackMove = false;
 	for (int i = 0; i <= 7; i++) {
@@ -1177,11 +1163,6 @@ bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
 					}
 				}
 			}
-
-			if (canWhiteMove && canBlackMove) {
-				return false;
-			}
-
 		}
 	}
 
@@ -1198,7 +1179,37 @@ bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
 	}
 
 	// checking stalemate status because of repeating same move for both teams
+	// this is example of stalemate in this situation
+	// white goes to A position
+	// black goes to Y position
+	// white goes to B position
+	// black goes to X position
+	// white goes to A position
+	// black goes to Y position
+	// white movememt (A, B, A) black movement (Y, X, Y)
+	if (history.back() != "empty") {
+		vector<string> vHistory(history.begin(), history.end());
+		string firstPiece = vHistory[0].substr(0, 1),
+			secondPiece = vHistory[1].substr(0, 1),
+			thirdPiece = vHistory[2].substr(0, 1),
+			fourthPiece = vHistory[3].substr(0, 1),
+			fifthPiece = vHistory[4].substr(0, 1),
+			sixthPiece = vHistory[5].substr(0, 1);
 
+		//// white move same pieces
+		if (firstPiece == thirdPiece && thirdPiece == fifthPiece) {
+			// black move same pieces too
+			if (secondPiece == fourthPiece && fourthPiece == sixthPiece) {
+				// white goes to A situation in (first and fifth move)
+				if (vHistory[0] == vHistory[4]) {
+					// black goes to Y situation in (second and sixth move)
+					if (vHistory[1] == vHistory[5]) {
+						return true;
+					}
+				}
+			}
+		}
+	}
 
 	return false;
 }
@@ -1241,7 +1252,7 @@ void continueTheGame(boardSquares** chessBoard, bool isWhiteToMove, checkStruct 
 }
 
 void tryAnotherMove(boardSquares** chessBoard, bool isWhiteToMove, string errorMessage, checkStruct checkStatus) {
-	//system("CLS");
+	system("CLS");
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
 	cout << errorMessage << endl;
 	continueTheGame(chessBoard, isWhiteToMove, checkStatus);
@@ -1558,7 +1569,14 @@ boardSquares** findUnderAttackSquares(boardSquares** chessBoard) {
 	return newChessBoard;
 }
 
+void updateHistory(string pieceName, int startFile, int startRank, int targetFile, int targetRank, bool isWhiteToMove) {
+	string currentMoveData = pieceName + " " + to_string(startFile) + " " + to_string(startRank) + " " + to_string(targetFile) + " " + to_string(targetRank) + " " + (isWhiteToMove ? "white" : "black");
+	history.push_front(currentMoveData);
+	history.pop_back();
+}
+
 void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, int startRank, int targetFile, int targetRank, bool isWhiteToMove) {
+	updateHistory(pieceName, startFile, startRank, targetFile, targetRank, isWhiteToMove);
 	string playerMove;
 	boardSquares** newChessBoard = chessBoard;
 	newChessBoard[targetRank][targetFile].pieceData = chessBoard[startRank][startFile].pieceData;
@@ -1587,7 +1605,7 @@ void showNewBoard(boardSquares** chessBoard, string pieceName, int startFile, in
 	// preparation of new round
 	newChessBoard = findUnderAttackSquares(newChessBoard);
 	checkStruct checkStatus = playerCheckStatus(newChessBoard);
-	//system("CLS");
+	system("CLS");
 	cout << "\t" << showBoard(newChessBoard, !isWhiteToMove);
 	continueTheGame(newChessBoard, !isWhiteToMove, checkStatus);
 }
@@ -2187,6 +2205,8 @@ int main() {
 
 	bool isWhiteToMove = true;
 	checkStruct checkStatus = playerCheckStatus(chessBoard);
+
+	names = givePlayerNames();
 
 	cout << "\t" << showBoard(chessBoard, isWhiteToMove);
 	continueTheGame(chessBoard, isWhiteToMove, checkStatus);
