@@ -143,22 +143,23 @@ boardSquares** makeChessBoard() {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "white";
 			}
-			//if (i == 4 && j == 7) {
+			//if (i == 0 && j == 7) {
 			//	chessBoard[i][j].pieceData.currentPiece = "Q";
-			//	chessBoard[i][j].pieceData.color = "black";
+			//	chessBoard[i][j].pieceData.color = "white";
 			//}
+
 			if (i == 5 && j == 5) {
 				chessBoard[i][j].pieceData.currentPiece = "K";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			if (i == 6 && j == 4) {
+			if (i == 2 && j == 6) {
+				chessBoard[i][j].pieceData.currentPiece = "P";
+				chessBoard[i][j].pieceData.color = "white";
+			}
+			if (i == 5 && j == 3) {
 				chessBoard[i][j].pieceData.currentPiece = "B";
 				chessBoard[i][j].pieceData.color = "black";
 			}
-			//if (i == 6 && j == 5) {
-			//	chessBoard[i][j].pieceData.currentPiece = "B";
-			//	chessBoard[i][j].pieceData.color = "black";
-			//}
 		}
 	}
 
@@ -193,12 +194,12 @@ string showBoard(boardSquares** chessBoard, bool isWhiteToMove) {
 		string colorLine = "\n\t  ";
 		for (int j = 0; j < 8; j++) {
 			if (chessBoard[i][j].isWhite) {
-				//colorLine = colorLine + "|#   #|";
-				colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
+				colorLine = colorLine + "|#   #|";
+				//colorLine = colorLine + "|#" + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + "#|";
 			}
 			else {
-				//colorLine = colorLine + "|     |";
-				colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
+				colorLine = colorLine + "|     |";
+				//colorLine = colorLine + "| " + (chessBoard[i][j].isUnderWhiteAttack ? "w" : " ") + " " + (chessBoard[i][j].isUnderBlackAttack ? "b" : " ") + " |";
 			}
 		}
 		colorLine = colorLine + "\n\t";
@@ -642,7 +643,7 @@ bool canPawnSaveKing(boardSquares** chessBoard, int startRank, int startFile, ch
 			}
 		}
 	}
-	
+
 	return false;
 }
 
@@ -728,22 +729,348 @@ bool isCheckMate(boardSquares** chessBoard, checkStruct checkStatus) {
 	return true;
 }
 
+bool canRookOrQweenMove(boardSquares** chessBoard, int startRank, int startFile) {
+	// in rook or qween move (only vertical or only horizontal moves) we need to check just ranks or just files
+	// checking higher ranks
+	for (int a = startRank + 1; a <= 7; a++) {
+		if (chessBoard[a][startFile].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][startFile].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking lower ranks
+	for (int a = startRank - 1; a >= 0; a--) {
+		if (chessBoard[a][startFile].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][startFile].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking higher files
+	for (int a = startFile + 1; a <= 7; a++) {
+		if (chessBoard[startRank][a].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[startRank][a].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking lower files
+	for (int a = startFile - 1; a >= 0; a--) {
+		if (chessBoard[startRank][a].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[startRank][a].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+
+	return false;
+}
+
+bool canBishopOrQweenMove(boardSquares** chessBoard, int startRank, int startFile) {
+	// in bishop or qween move (both vertical and horizontal at the same time) we need to check both ranks and files
+	// checking higher ranks and higher files
+	for (int a = startRank + 1, b = startFile + 1; (a <= 7 && b <= 7); a++, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][b].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking higher ranks and lower files
+	for (int a = startRank + 1, b = startFile - 1; (a <= 7 && b >= 0); a++, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][b].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking lower ranks and higher files
+	for (int a = startRank - 1, b = startFile + 1; (a >= 0 && b <= 7); a--, b++) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][b].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+	// checking lower ranks and lower files
+	for (int a = startRank - 1, b = startFile - 1; (a >= 0 && b >= 0); a--, b--) {
+		if (chessBoard[a][b].pieceData.currentPiece == " ") {
+			return true;
+		}
+		else {
+			// attacking the opposing team's pieces
+			if (chessBoard[a][b].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+				return true;
+			}
+
+			break;
+		}
+	}
+
+	return false;
+}
+
+bool canKnightMove(boardSquares** chessBoard, int startRank, int startFile) {
+	// each knight can attack 8 squares (2 top right, 2 top left, 2 bottom right, 2 bottom left)
+	int twoLeft = startFile + 2,
+		twoRight = startFile - 2,
+		oneLeft = startFile + 1,
+		oneRight = startFile - 1,
+		oneTop = startRank - 1,
+		oneBottom = startRank + 1,
+		twoTop = startRank - 2,
+		twoBottom = startRank + 2;
+
+	if (oneTop >= 0) {
+		if (twoLeft <= 7) {
+			if (chessBoard[oneTop][twoLeft].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[oneTop][twoLeft].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+		if (twoRight >= 0) {
+			if (chessBoard[oneTop][twoRight].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[oneTop][twoRight].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+	}
+	if (twoTop >= 0) {
+		if (oneLeft <= 7) {
+			if (chessBoard[twoTop][oneLeft].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[twoTop][oneLeft].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+		if (oneRight >= 0) {
+			if (chessBoard[twoTop][oneRight].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[twoTop][oneRight].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+	}
+	if (oneBottom <= 7) {
+		if (twoLeft <= 7) {
+			if (chessBoard[oneBottom][twoLeft].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[oneBottom][twoLeft].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+		if (twoRight >= 0) {
+			if (chessBoard[oneBottom][twoRight].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[oneBottom][twoRight].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+	}
+	if (twoBottom <= 7) {
+		if (oneLeft <= 7) {
+			if (chessBoard[twoBottom][oneLeft].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[twoBottom][oneLeft].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+		if (oneRight >= 0) {
+			if (chessBoard[twoBottom][oneRight].pieceData.currentPiece == " ") {
+				return true;
+			}
+			else {
+				if (chessBoard[twoBottom][oneRight].pieceData.color != chessBoard[startRank][startFile].pieceData.color) {
+					return true;
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
+bool canPawnMove(boardSquares** chessBoard, int startRank, int startFile){
+	int oneTop = startRank + 1,
+		twoTop = startRank + 2,
+		oneRight = startFile + 1,
+		oneLeft = startFile - 1,
+		oneBottom = startRank - 1,
+		twoBottom = startRank - 2;
+
+	// when pawn is going straight
+	if (oneTop <= 7) {
+		// going right top
+		if (oneRight <= 7) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneRight, oneTop)) {
+				return true;
+			}
+		}
+		// going left top
+		if (oneLeft >= 0) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneLeft, oneTop)) {
+				return true;
+			}
+		}
+		// going one square top
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, oneTop)) {
+			return true;
+		}
+	}
+	if (twoTop <= 7) {
+		// going two square top
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, twoTop)) {
+			return true;
+		}
+	}
+	if (oneBottom >= 0) {
+		// going right bottom
+		if (oneRight <= 7) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneRight, oneBottom)) {
+				return true;
+			}
+		}
+		// going left bottom
+		if (oneLeft >= 0) {
+			if (isLegalMoveForP(chessBoard, startFile, startRank, oneLeft, oneBottom)) {
+				return true;
+			}
+		}
+		// going one square bottom
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, oneBottom)) {
+			return true;
+		}
+	}
+	if (twoBottom >= 0) {
+		// going two square bottom
+		if (isLegalMoveForP(chessBoard, startFile, startRank, startFile, twoBottom)) {
+			return true;
+		}
+	}
+
+	return false;
+}
+
+bool canKingMove(boardSquares** chessBoard, int startRank, int startFile) {
+	string kingColor = chessBoard[startRank][startFile].pieceData.color;
+	// checking for scape squares
+	for (int i = -1; i <= 1; i++) {
+		for (int j = -1; j <= 1; j++) {
+			int kingTargetRank = startRank + i;
+			int kingTargetFile = startFile + j;
+
+			if (kingTargetRank <= 7 && kingTargetRank >= 0) {
+				if (kingTargetFile <= 7 && kingTargetFile >= 0) {
+					if (chessBoard[kingTargetRank][kingTargetFile].pieceData.currentPiece == " ") {
+						if (kingColor == "white") {
+							if (!chessBoard[kingTargetRank][kingTargetFile].isUnderBlackAttack) {
+								return true;
+							}
+						}
+						else {
+							if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
+								return true;
+							}
+						}
+					}
+					else {
+                        // opposing team's pieces
+						if (chessBoard[kingTargetRank][kingTargetFile].pieceData.color != kingColor) {
+							if (kingColor == "white") {
+								if (!chessBoard[kingTargetRank][kingTargetFile].isUnderBlackAttack) {
+									return true;
+								}
+							}
+							else {
+								if (!chessBoard[kingTargetRank][kingTargetFile].isUnderWhiteAttack) {
+									return true;
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	return false;
+}
+
 bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
 	// stalemate happens in two situations (there is no move for pieces, there is no pieces)
 	string currentTeam = (isWhiteToMove ? "white" : "black");
 
-	bool isThereAnyOtherPieces = false;
 	currentPiecesStruct pieces;
-	int kingStartRank, kingStartFile;
+	bool canWhiteMove = false, canBlackMove = false;
 	for (int i = 0; i <= 7; i++) {
 		for (int j = 0; j <= 7; j++) {
-			if (chessBoard[i][j].pieceData.currentPiece == "K" && chessBoard[i][j].pieceData.color == currentTeam) {
-				kingStartRank = i;
-				kingStartFile = j;
-			}
-
 			if (chessBoard[i][j].pieceData.currentPiece != " " && chessBoard[i][j].pieceData.currentPiece != "K") {
-				isThereAnyOtherPieces = true;
 				// white pieces
 				if (chessBoard[i][j].pieceData.color == "white") {
 					if (chessBoard[i][j].pieceData.currentPiece == "Q") { pieces.numOfWhiteQ++; }
@@ -764,12 +1091,114 @@ bool isStaleMate(boardSquares** chessBoard, bool isWhiteToMove) {
 		}
 	}
 
-	// if there is just two king on the board
-	if (!isThereAnyOtherPieces) {
-		return true;
+	// checking stalemate status because of lack of enough pieces
+	if (!pieces.numOfWhiteQ && !pieces.numOfBlackQ) {
+		// no qween on the board
+		if (!pieces.numOfWhiteR && !pieces.numOfBlackR) {
+			// no rook on the board
+			if (!pieces.numOfWhiteP && !pieces.numOfBlackP) {
+				// no pawn on the board
+				if (!pieces.numOfWhiteB && !pieces.numOfBlackB && !pieces.numOfWhiteN && !pieces.numOfBlackN) {
+					// no bishop and no knight on the board
+					// there is nothing on the board except (white and black king)
+					return true;
+				}
+				else if((pieces.numOfWhiteB + pieces.numOfWhiteN) <= 1 && (pieces.numOfBlackN + pieces.numOfBlackB) <= 1) {
+				    // there is just one bishop or one knight one the board for each team
+					// there is no checkmate with this kind of pieces
+					return true;
+				}
+			}
+		}
 	}
-	cout << "white pieces " << pieces.numOfWhiteQ << " " << pieces.numOfWhiteR << " " << pieces.numOfWhiteB << " " << pieces.numOfWhiteN << " " << pieces.numOfWhiteP << endl;
-	cout << "black pieces " << pieces.numOfBlackQ << " " << pieces.numOfBlackR << " " << pieces.numOfBlackB << " " << pieces.numOfBlackN << " " << pieces.numOfBlackP;
+
+	// checking stalemate status because of inability to move pieces
+	for (int i = 0; i <= 7; i++) {
+		for (int j = 0; j <= 7; j++) {
+			if (chessBoard[i][j].pieceData.currentPiece != " ") {
+				if (chessBoard[i][j].pieceData.currentPiece == "Q") {
+					if (canRookOrQweenMove(chessBoard, i, j) || canBishopOrQweenMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+				else if (chessBoard[i][j].pieceData.currentPiece == "R") {
+					if (canRookOrQweenMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+				else if (chessBoard[i][j].pieceData.currentPiece == "B") {
+					if (canBishopOrQweenMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+				else if (chessBoard[i][j].pieceData.currentPiece == "N") {
+					if (canKnightMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+				else if (chessBoard[i][j].pieceData.currentPiece == "P") {
+					if (canPawnMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+				else {
+					if (canKingMove(chessBoard, i, j)) {
+						if (chessBoard[i][j].pieceData.color == "white") {
+							canWhiteMove = true;
+						}
+						else {
+							canBlackMove = true;
+						}
+					}
+				}
+			}
+
+			if (canWhiteMove && canBlackMove) {
+				return false;
+			}
+
+		}
+	}
+
+	// it is white turn and can't move or it is black turn and can't move
+	if (isWhiteToMove) {
+		if (!canWhiteMove) {
+			return true;
+		}
+	}
+	else {
+		if (!canBlackMove) {
+			return true;
+		}
+	}
+
+	// checking stalemate status because of repeating same move for both teams
+
 
 	return false;
 }
