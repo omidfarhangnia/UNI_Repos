@@ -50,6 +50,16 @@ PERSON Person(string personName, string personLastName, int personAge) {
 	return randomPerson;
 }
 
+double peopleAgeAvg(PERSON people[], int length) {
+	double avg = 0;
+
+	for (int i = 0; i < length; i++) {
+		avg += people[i].age;
+	}
+
+	return (avg / length);
+}
+
 int main() {
 
 	const int numsLength = 7;
@@ -61,9 +71,18 @@ int main() {
 	// output : "2000"
 	cout << "find the min (0, -30, 20, 150, 2000, -300, 500)" << " ==> " << Min(nums, numsLength) << endl;
 	// output : "-300"
-	PERSON randomPerson = Person("randomName", "randomLastName", 30);
-	cout << randomPerson.firstName << "        " << randomPerson.lastName << "        " << randomPerson.age;
-	// output : randomName        randomLastName        30
-
+	PERSON person1 = Person("randomName", "randomLastName", 22);
+	PERSON person2 = Person("randomName", "randomLastName", 60);
+	PERSON person3 = Person("randomName", "randomLastName", 19);
+	PERSON person4 = Person("randomName", "randomLastName", 39);
+	PERSON person5 = Person("randomName", "randomLastName", 60);
+	PERSON person6 = Person("randomName", "randomLastName", 2);
+	PERSON person7 = Person("randomName", "randomLastName", 6);
+	PERSON person8 = Person("randomName", "randomLastName", 12);
+	PERSON person9 = Person("randomName", "randomLastName", 89);
+	PERSON person10 = Person("randomName", "randomLastName", 15);
+	const int peopleLength = 10;
+	PERSON people[peopleLength] = { person1, person2, person3, person4, person5, person6, person7, person8, person9, person10 };
+	cout << "Avg is : " << peopleAgeAvg(people, peopleLength);
 	return 0;
 }
