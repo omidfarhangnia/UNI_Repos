@@ -1,0 +1,37 @@
+{
+  "Version": 1,
+  "WorkspaceRootPath": "C:\\Users\\farhangnia\\Documents\\GitHub\\UNI_Repos\\P4\\",
+  "Documents": [
+    {
+      "AbsoluteMoniker": "D:0:0:{4FC0C929-9324-42F9-96DA-99A3A3416D2F}|P2\\P2.vcxproj|C:\\Users\\farhangnia\\Documents\\GitHub\\UNI_Repos\\P4\\P2\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}",
+      "RelativeMoniker": "D:0:0:{4FC0C929-9324-42F9-96DA-99A3A3416D2F}|P2\\P2.vcxproj|solutionrelative:P2\\Source.cpp||{D0E1A5C6-B359-4E41-9B60-3365922C2A22}"
+    }
+  ],
+  "DocumentGroupContainers": [
+    {
+      "Orientation": 0,
+      "VerticalTabListWidth": 256,
+      "DocumentGroups": [
+        {
+          "DockedWidth": 200,
+          "SelectedChildIndex": 0,
+          "Children": [
+            {
+              "$type": "Document",
+              "DocumentIndex": 0,
+              "Title": "Source.cpp",
+              "DocumentMoniker": "C:\\Users\\farhangnia\\Documents\\GitHub\\UNI_Repos\\P4\\P2\\Source.cpp",
+              "RelativeDocumentMoniker": "P2\\Source.cpp",
+              "ToolTip": "C:\\Users\\farhangnia\\Documents\\GitHub\\UNI_Repos\\P4\\P2\\Source.cpp",
+              "RelativeToolTip": "P2\\Source.cpp",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAABEAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000677|",
+              "WhenOpened": "2025-03-12T13:15:46.146Z",
+              "EditorCaption": ""
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
